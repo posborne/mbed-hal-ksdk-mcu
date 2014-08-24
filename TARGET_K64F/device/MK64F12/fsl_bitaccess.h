@@ -1,61 +1,77 @@
 /*
- * Copyright (c) 2014, Freescale Semiconductor, Inc.
- * All rights reserved.
- *
- * THIS SOFTWARE IS PROVIDED BY FREESCALE "AS IS" AND ANY EXPRESS OR IMPLIED
- * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
- * SHALL FREESCALE BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
- * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
- * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
- * OF SUCH DAMAGE.
- */
+** ###################################################################
+**     Version:             rev. 2.5, 2014-02-10
+**     Build:               b140604
+**
+**     Abstract:
+**         Register bit field access macros.
+**
+**     Copyright (c) 2014 Freescale Semiconductor, Inc.
+**     All rights reserved.
+**
+**     Redistribution and use in source and binary forms, with or without modification,
+**     are permitted provided that the following conditions are met:
+**
+**     o Redistributions of source code must retain the above copyright notice, this list
+**       of conditions and the following disclaimer.
+**
+**     o Redistributions in binary form must reproduce the above copyright notice, this
+**       list of conditions and the following disclaimer in the documentation and/or
+**       other materials provided with the distribution.
+**
+**     o Neither the name of Freescale Semiconductor, Inc. nor the names of its
+**       contributors may be used to endorse or promote products derived from this
+**       software without specific prior written permission.
+**
+**     THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+**     ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+**     WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+**     DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+**     ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+**     (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+**     LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+**     ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+**     (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+**     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+**
+**     http:                 www.freescale.com
+**     mail:                 support@freescale.com
+**
+**     Revisions:
+**     - rev. 1.0 (2013-08-12)
+**         Initial version.
+**     - rev. 2.0 (2013-10-29)
+**         Register accessor macros added to the memory map.
+**         Symbols for Processor Expert memory map compatibility added to the memory map.
+**         Startup file for gcc has been updated according to CMSIS 3.2.
+**         System initialization updated.
+**         MCG - registers updated.
+**         PORTA, PORTB, PORTC, PORTE - registers for digital filter removed.
+**     - rev. 2.1 (2013-10-30)
+**         Definition of BITBAND macros updated to support peripherals with 32-bit acces disabled.
+**     - rev. 2.2 (2013-12-09)
+**         DMA - EARS register removed.
+**         AIPS0, AIPS1 - MPRA register updated.
+**     - rev. 2.3 (2014-01-24)
+**         Update according to reference manual rev. 2
+**         ENET, MCG, MCM, SIM, USB - registers updated
+**     - rev. 2.4 (2014-02-10)
+**         The declaration of clock configurations has been moved to separate header file system_MK64F12.h
+**         Update of SystemInit() and SystemCoreClockUpdate() functions.
+**     - rev. 2.5 (2014-02-10)
+**         The declaration of clock configurations has been moved to separate header file system_MK64F12.h
+**         Update of SystemInit() and SystemCoreClockUpdate() functions.
+**         Module access macro module_BASES replaced by module_BASE_PTRS.
+**
+** ###################################################################
+*/
 
-#ifndef _REGS_H
-#define _REGS_H  1
+
+#ifndef _FSL_BITACCESS_H
+#define _FSL_BITACCESS_H  1
 
 #include <stdint.h>
 #include <stdlib.h>
-
-//
-// define base address of the register block only if it is not already
-// defined, which allows the compiler to override at build time for
-// users who've mapped their registers to locations other than the
-// physical location
-//
-
-#include <stdint.h>
-
-#ifndef REGS_BASE
-#define REGS_BASE 0x00000000
-#endif
-
-//
-// common register types
-//
-
-#ifndef __LANGUAGE_ASM__
-typedef unsigned char reg8_t;
-typedef unsigned short reg16_t;
-typedef unsigned int reg32_t;
-#endif
-
-#ifdef __cplusplus
-  #define   __I     volatile             /*!< Defines 'read only' permissions                 */
-#else
-  #define   __I     volatile const       /*!< Defines 'read only' permissions                 */
-#endif
-#define     __O     volatile             /*!< Defines 'write only' permissions                */
-#define     __IO    volatile             /*!< Defines 'read / write' permissions              */
-
-#define BME_AND_MASK	(1<<26)
-#define BME_OR_MASK		(1<<27)
-#define BME_XOR_MASK	(3<<26)
-#define BME_BFI_MASK(BIT,WIDTH)		(1<<28) | (BIT<<23) | ((WIDTH-1)<<19)
-#define BME_UBFX_MASK(BIT,WIDTH)	(1<<28) | (BIT<<23) | ((WIDTH-1)<<19)
 
 /**
  * @brief Macro to access a single bit of a 32-bit peripheral register (bit band region
@@ -84,21 +100,9 @@ typedef unsigned int reg32_t;
  */
 #define BITBAND_ACCESS8(Reg,Bit) (*((uint8_t volatile*)(0x42000000u + (32u*((uint32_t)(Reg) - (uint32_t)0x40000000u)) + (4u*((uint32_t)(Bit))))))
 
-//
-// Typecast macro for C or asm. In C, the cast is applied, while in asm it is excluded. This is
-// used to simplify macro definitions in the module register headers.
-//
-#ifndef __REG_VALUE_TYPE
-    #ifndef __LANGUAGE_ASM__
-        #define __REG_VALUE_TYPE(v, t) ((t)(v))
-    #else
-        #define __REG_VALUE_TYPE(v, t) (v)
-    #endif
-#endif
-
-//
-// macros for single instance registers
-//
+/*
+ * Macros for single instance registers
+ */
 
 #define BF_SET(reg, field)       HW_##reg##_SET(BM_##reg##_##field)
 #define BF_CLR(reg, field)       HW_##reg##_CLR(BM_##reg##_##field)
@@ -202,9 +206,9 @@ typedef unsigned int reg32_t;
                         BF_##reg##_##f7(v7) |  \
                         BF_##reg##_##f8(v8)))
 
-//
-// macros for multiple instance registers
-//
+/*
+ * Macros for multiple instance registers
+ */
 
 #define BF_SETn(reg, n, field)       HW_##reg##_SET(n, BM_##reg##_##field)
 #define BF_CLRn(reg, n, field)       HW_##reg##_CLR(n, BM_##reg##_##field)
@@ -308,9 +312,9 @@ typedef unsigned int reg32_t;
                             BF_##reg##_##f7(v7) |   \
                             BF_##reg##_##f8(v8))))
 
-//
-// macros for single instance MULTI-BLOCK registers
-//
+/*
+ * Macros for single instance MULTI-BLOCK registers
+ */
 
 #define BFn_SET(reg, blk, field)       HW_##reg##_SET(blk, BM_##reg##_##field)
 #define BFn_CLR(reg, blk, field)       HW_##reg##_CLR(blk, BM_##reg##_##field)
@@ -414,9 +418,9 @@ typedef unsigned int reg32_t;
                         BF_##reg##_##f7(v7) |  \
                         BF_##reg##_##f8(v8)))
 
-//
-// macros for MULTI-BLOCK multiple instance registers
-//
+/*
+ * Macros for MULTI-BLOCK multiple instance registers
+ */
 
 #define BFn_SETn(reg, blk, n, field)       HW_##reg##_SET(blk, n, BM_##reg##_##field)
 #define BFn_CLRn(reg, blk, n, field)       HW_##reg##_CLR(blk, n, BM_##reg##_##field)
@@ -520,6 +524,6 @@ typedef unsigned int reg32_t;
                             BF_##reg##_##f7(v7) |   \
                             BF_##reg##_##f8(v8))))
 
-#endif // _REGS_H
+#endif /* _FSL_BITACCESS_H */
 
-////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
