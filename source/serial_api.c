@@ -358,7 +358,7 @@ static void serial_buffer_tx_write(serial_t *obj)
 
 static int serial_buffer_rx_read(serial_t *obj)
 {
-    uint16_t data;
+    uint16_t data = 0;
     if (obj->serial.databits < 9) {
         UART_HAL_Getchar(obj->serial.address, (uint8_t *)&data);
     } else {
