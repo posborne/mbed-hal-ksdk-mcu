@@ -44,8 +44,8 @@ struct pwmout_s {
 struct serial_s {
     uint32_t instance;
     uint32_t address;
-    DMA_USAGE_Enum tx_dma_state;
-    DMA_USAGE_Enum rx_dma_state;
+    DMAUsage tx_dma_state;
+    DMAUsage rx_dma_state;
     uint8_t databits;
     uint32_t event;
     uint32_t vector_cur;
@@ -65,7 +65,7 @@ struct i2c_s {
 struct spi_s {
     uint32_t instance;
     uint32_t address;
-    DMA_USAGE_Enum dma_state;
+    DMAUsage dma_state;
     uint8_t bits;
     uint32_t event;
 };
