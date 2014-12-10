@@ -69,10 +69,9 @@ void us_ticker_set_interrupt(timestamp_t timestamp) {
     int delta = (int)(timestamp - us_ticker_read());
     if (delta <= 0) {
         // This event was in the past:
-        us_ticker_irq_handler();
-        return;
+        delta = 1;
     }
- 
+
     PIT_HAL_StopTimer(PIT_BASE, 3);
     PIT_HAL_StopTimer(PIT_BASE, 2);
     PIT_HAL_SetTimerPeriodByCount(PIT_BASE, 3, (uint32_t)delta);
@@ -80,3 +79,4 @@ void us_ticker_set_interrupt(timestamp_t timestamp) {
     PIT_HAL_StartTimer(PIT_BASE, 3);
     PIT_HAL_StartTimer(PIT_BASE, 2);
 }
+
