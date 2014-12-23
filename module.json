@@ -1,6 +1,6 @@
 {
   "name": "mbed-hal-ksdk-mcu",
-  "version": "0.0.3",
+  "version": "0.0.0",
   "description": "mbed HAL for Freescale KSDK MCUs",
   "keywords": [
     "mbed",
@@ -59,11 +59,11 @@
     "mbed-hal-ksdk-mcu/TARGET_KSDK_CODE/utilities"
   ],
   "dependencies": {
-    "mbed-hal": "ARMmbed/mbed-hal"
+    "mbed-hal": "ARMmbed/mbed-hal-private#scons"
   },
   "targetDependencies": {
     "k64f": {
-      "mbed-hal-k64f": "ARMmbed/mbed-hal-k64f#~0.0.1"
+      "mbed-hal-k64f": "ARMmbed/mbed-hal-k64f-private#scons"
     }
   }
 }
