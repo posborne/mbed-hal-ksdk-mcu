@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2006-2015 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -582,20 +582,14 @@ void serial_rx_asynch(serial_t *obj, void *rx, uint32_t rx_length, uint8_t rx_wi
 
 void serial_tx_abort_asynch(serial_t *obj)
 {
-    // revert the vector only if RX is not active as it's shared
-    if (serial_rx_active(obj)) {
-        serial_tx_enable_interrupt(obj, obj->serial.vector_prev, false);
-    }
+    serial_irq_set(obj, (SerialIrq)1, false);
     UART_HAL_DisableTransmitter(obj->serial.address);
     UART_HAL_FlushTxFifo(obj->serial.address);
 }
 
 void serial_rx_abort_asynch(serial_t *obj)
 {
-    // revert the vector only if TX is not active as it's shared
-    if (serial_tx_active(obj)) {
-        serial_rx_enable_interrupt(obj, obj->serial.vector_prev, false);
-    }
+    serial_irq_set(obj, (SerialIrq)0, false);
     UART_HAL_DisableReceiver(obj->serial.address);
     UART_HAL_FlushRxFifo(obj->serial.address);
 }
