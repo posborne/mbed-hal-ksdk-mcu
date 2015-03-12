@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2006-2015 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,6 +60,14 @@ struct analogin_s {
 
 struct i2c_s {
     uint32_t instance;
+    uint32_t base_addrs;
+    uint32_t event;
+    uint32_t vector_cur;
+    uint32_t vector_prev;
+    uint16_t address;
+    uint8_t dma_state;
+    uint8_t generate_stop;
+    uint8_t state;
 };
 
 struct spi_s {
