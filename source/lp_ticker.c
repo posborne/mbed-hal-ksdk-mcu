@@ -24,6 +24,14 @@
 
 #include "lp_ticker_api.h"
 
+/*
+The Low power  timer for KSDK devices uses 2 timers. The timestamp is 32bit number,
+however LPTMR contains only 16-bit timer. In addition, RTC contains only seconds alarm interrupt.
+ 
+When adding a new event, if timestamp fits within LPTMR 16bit counter, its interrupt is set only,
+otherwise RTC seconds alarm is used, and the leftover is for LPTMR timer.
+*/
+
 static int lp_ticker_inited = 0;
 static int lp_timer_schedule = 0;
 static void lptmr_isr(void);
