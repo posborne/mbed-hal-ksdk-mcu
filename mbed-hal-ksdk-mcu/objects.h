@@ -21,6 +21,7 @@
 #include "PeripheralNames.h"
 #include "PinNames.h"
 #include "dma_api.h"
+#include "target_config.h"
 
 #ifdef __cplusplus
 extern "C" {
