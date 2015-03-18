@@ -59,11 +59,11 @@
     "mbed-hal-ksdk-mcu/TARGET_KSDK_CODE/utilities"
   ],
   "dependencies": {
-    "mbed-hal": "ARMmbed/mbed-hal"
+    "mbed-hal": "ARMmbed/mbed-hal-private"
   },
   "targetDependencies": {
     "k64f": {
-      "mbed-hal-k64f": "ARMmbed/mbed-hal-k64f#~0.0.1"
+      "mbed-hal-k64f": "ARMmbed/mbed-hal-k64f-private#~0.1.0"
     }
   }
 }
