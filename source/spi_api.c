@@ -30,7 +30,7 @@
 
 static void spi_enable_vector_interrupt(spi_t *obj, uint32_t handler, uint8_t enable);
 static void spi_master_enable_interrupt(spi_t *obj, uint8_t enable);
-static uint32_t spi_master_write_asynch(spi_t *obj, uint32_t TxLimit);
+static uint32_t spi_master_write_asynch(spi_t *obj);
 static uint32_t spi_master_read_asynch(spi_t *obj);
 static uint32_t spi_event_check(spi_t *obj);
 static void spi_buffer_tx_write(spi_t *obj);
