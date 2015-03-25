@@ -34,7 +34,7 @@ static uint32_t spi_master_write_asynch(spi_t *obj, uint32_t TxLimit);
 static uint32_t spi_master_read_asynch(spi_t *obj);
 static uint32_t spi_event_check(spi_t *obj);
 static void spi_buffer_tx_write(spi_t *obj);
-static void spi_buffer_rx_read(spi_t *obj, uint32_t ndata, uint32_t max_frames);
+static void spi_buffer_rx_read(spi_t *obj);
 static void spi_enable_event_flags(spi_t *obj, uint32_t event, uint8_t enable);
 static void spi_buffer_set(spi_t *obj, void *tx, uint32_t tx_length, void *rx, uint32_t rx_length, uint8_t bit_width);
 
@@ -258,33 +258,32 @@ static void spi_buffer_tx_write(spi_t *obj)
             data = tx[obj->tx_buff.pos];
         }
         // Increment the buffer position
-        obj->tx_buff.pos++;
     }
+    obj->tx_buff.pos++;
     // Send the data
     DSPI_HAL_WriteDataMastermode(obj->spi.address, &command, (uint16_t)data);
     // Clear the FIFO fill request
     DSPI_HAL_ClearStatusFlag(obj->spi.address, kDspiTxFifoFillRequest);
 }
 
-static void spi_buffer_rx_read(spi_t *obj, uint32_t ndata, uint32_t max_frames)
+static void spi_buffer_rx_read(spi_t *obj)
 {
-    // Read a word from FIFO
+    // Read a word from the RX FIFO
     int data = (int)DSPI_HAL_ReadData(obj->spi.address);
-    if (ndata < max_frames) {
-        // Disregard the word if the rx buffer is full and not present
-        if ((obj->rx_buff.buffer) && (obj->rx_buff.pos < obj->rx_buff.length)) {
-            if (obj->rx_buff.width == 8) {
-                // store the word to the rx buffer
-                uint8_t *rx = (uint8_t *)(obj->rx_buff.buffer);
-                rx[obj->rx_buff.pos] = data;
-            } else if (obj->rx_buff.width == 16) {
-                uint16_t *rx = (uint16_t *)(obj->rx_buff.buffer);
-                rx[obj->rx_buff.pos] = data;
-            }
-            // advance the buffer position
-            obj->rx_buff.pos++;
+
+    // Disregard the word if the rx buffer is full or not present
+    if (obj->rx_buff.buffer && obj->rx_buff.pos < obj->rx_buff.length) {
+        if (obj->spi.bits <= 8) {
+            // store the word to the rx buffer
+            uint8_t *rx = (uint8_t *)(obj->rx_buff.buffer);
+            rx[obj->rx_buff.pos] = data;
+        } else if (obj->spi.bits <= 16) {
+            uint16_t *rx = (uint16_t *)(obj->rx_buff.buffer);
+            rx[obj->rx_buff.pos] = data;
         }
     }
+    // advance the buffer position
+    obj->rx_buff.pos++;
     // clear the RX FIFO drain request
     DSPI_HAL_ClearStatusFlag(obj->spi.address, kDspiRxFifoDrainRequest);
 }
@@ -300,8 +299,8 @@ static uint32_t spi_master_write_asynch(spi_t *obj, uint32_t TxLimit)
 {
     uint32_t ndata = 0;
     // Determine the number of frames to send
-    uint32_t txRemaining = obj->tx_buff.length - obj->tx_buff.pos;
-    uint32_t rxRemaining = obj->rx_buff.length - obj->rx_buff.pos;
+    uint32_t txRemaining = obj->tx_buff.length - min(obj->tx_buff.pos, obj->tx_buff.length);
+    uint32_t rxRemaining = obj->rx_buff.length - min(obj->tx_buff.pos, obj->rx_buff.length);
     uint32_t maxTx = max(txRemaining, rxRemaining);
     maxTx = min(maxTx, TxLimit);
     // Send words until the FIFO is full or the send limit is reached
@@ -309,7 +308,7 @@ static uint32_t spi_master_write_asynch(spi_t *obj, uint32_t TxLimit)
         spi_buffer_tx_write(obj);
         ndata++;
     }
-    //Return the number of framess that have been sent
+    //Return the number of frames that have been sent
     return ndata;
 }
 
@@ -328,22 +327,27 @@ static uint32_t spi_master_read_asynch(spi_t *obj)
 {
     uint32_t ndata = 0;
     // Calculate the maximum number of frames to receive
-    uint32_t txRemaining = obj->tx_buff.length - obj->tx_buff.pos;
-    uint32_t rxRemaining = obj->rx_buff.length - obj->rx_buff.pos;
+    uint32_t txRemaining = obj->tx_buff.length - min(obj->rx_buff.pos, obj->tx_buff.length);
+    uint32_t rxRemaining = obj->rx_buff.length - min(obj->rx_buff.pos, obj->rx_buff.length);
     uint32_t maxRx = max(txRemaining, rxRemaining);
-
-    // Receive frames until RX FIFO is empty
-    while (DSPI_HAL_GetStatusFlag(obj->spi.address, kDspiRxFifoDrainRequest)) {
-        spi_buffer_rx_read(obj, ndata, maxRx);
+    // Receive frames until the maximum is reached or the RX FIFO is empty
+    while ((ndata < maxRx) && DSPI_HAL_GetStatusFlag(obj->spi.address, kDspiRxFifoDrainRequest)) {
+        spi_buffer_rx_read(obj);
         ndata++;
     }
     // Return the number of frames received
     return ndata;
 }
 
+/**
+ * Abort an SPI transfer
+ * This is a helper function for event handling. When any of the events listed occurs, the HAL will abort any ongoing
+ * transfers
+ * @param[in] obj The SPI peripheral to stop
+ */
 void spi_abort_asynch(spi_t *obj)
 {
-    spi_enable_vector_interrupt(obj, 0, false); //TODO prev vector
+    spi_enable_vector_interrupt(obj, 0, false);
     DSPI_HAL_SetFlushFifoCmd(obj->spi.address,true,true);
     DSPI_HAL_SetFifoCmd(obj->spi.address, false, false);
 }
@@ -370,6 +374,11 @@ uint32_t spi_irq_handler_asynch(spi_t *obj)
         uint32_t event = spi_event_check(obj);
         if (event) {
             result = event;
+            if (event & SPI_EVENT_COMPLETE) {
+                // adjust buffer positions
+                obj->tx_buff.pos = obj->tx_buff.length;
+                obj->rx_buff.pos = obj->rx_buff.length;
+            }
         }
     }
 
