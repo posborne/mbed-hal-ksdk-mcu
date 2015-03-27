@@ -238,7 +238,6 @@ int i2c_byte_read(i2c_t *obj, int last) {
 }
 
 int i2c_byte_write(i2c_t *obj, int data) {
-    uint32_t i2c_addrs[] = I2C_BASE_ADDRS;
     // set tx mode
     I2C_HAL_SetDirMode(obj->i2c.base_addrs, kI2CSend);
 
@@ -318,10 +317,9 @@ static void i2c_enable_vector_interrupt(i2c_t *obj, uint32_t handler, uint8_t en
 static int i2c_tx_event_check(i2c_t *obj)
 {
     int event = 0;
-    uint8_t nak_recv = I2C_HAL_GetStatusFlag(obj->i2c.base_addrs, kI2CReceivedNak);
     uint8_t transfer_compl = I2C_HAL_GetStatusFlag(obj->i2c.base_addrs, kI2CTransferComplete);
 
-    if (nak_recv || ((obj->tx_buff.pos == obj->tx_buff.length) && transfer_compl)) {
+    if (((obj->tx_buff.pos == obj->tx_buff.length) && transfer_compl)) {
         if (obj->i2c.event & I2C_EVENT_TRANSFER_COMPLETE) {
             event = I2C_EVENT_TRANSFER_COMPLETE;
         }
@@ -330,6 +328,10 @@ static int i2c_tx_event_check(i2c_t *obj)
             i2c_stop(obj);
         }
     } else if (obj->tx_buff.pos < obj->tx_buff.length) {
+        if (I2C_HAL_GetStatusFlag(obj->i2c.base_addrs, kI2CReceivedNak)) {
+             event = I2C_EVENT_TRANSFER_EARLY_NACK;
+             i2c_stop(obj);
+        }
         i2c_buffer_write(obj);
     }
     return event;
@@ -339,6 +341,10 @@ uint32_t i2c_irq_handler_asynch(i2c_t *obj)
 {
     int event = 0;
     I2C_HAL_ClearInt(obj->i2c.base_addrs);
+
+    if (!I2C_HAL_GetStatusFlag(obj->i2c.base_addrs, kI2CBusBusy)) {
+        return event;
+    }
 
     if (obj->i2c.state & I2C_MASK_SLAVE_DISCOVERY) {
         if (I2C_HAL_GetStatusFlag(obj->i2c.base_addrs, kI2CReceivedNak)) {
@@ -360,10 +366,7 @@ uint32_t i2c_irq_handler_asynch(i2c_t *obj)
                 break;
             case I2C_SEND_SLAVE_DISCOVERY:
                 obj->i2c.state = I2C_SEND;
-                // TODO pending check is a temporary fix. Reproduce - unit test - get ack from slave, fails randomly
-                if (!I2C_HAL_IsIntPending(obj->i2c.base_addrs) && (obj->tx_buff.pos < obj->tx_buff.length)) {
-                    i2c_buffer_write(obj);
-                }
+                i2c_buffer_write(obj);
                 break;
             case I2C_RECEIVE_SLAVE_DISCOVERY:
                 I2C_HAL_SetDirMode(obj->i2c.base_addrs, kI2CReceive);
