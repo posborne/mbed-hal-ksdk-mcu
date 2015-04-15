@@ -812,7 +812,7 @@ flexcan_status_t FLEXCAN_HAL_SetIdFilterTableElements(
             {
                 val |= 1 << 30;
                 j = 0;
-                for (i = 0; i < (data->num_id_filters + 1) * 8; i += 4)
+                for (i = 0; i < ((uint32_t)data->num_id_filters + 1) * 8; i += 4)
                 {
                     flexcan_reg_ptr->MB[6 + i - j * 3].CS = val +
                                                             ((*(id_filter_table->id_filter + i)) <<
@@ -836,7 +836,7 @@ flexcan_status_t FLEXCAN_HAL_SetIdFilterTableElements(
             else
             {
                 j = 0;
-                for (i = 0; i < (data->num_id_filters + 1) * 8; i += 4)
+                for (i = 0; i < ((uint32_t)data->num_id_filters + 1) * 8; i += 4)
                 {
                     flexcan_reg_ptr->MB[6 + i - j * 3].CS = val +
                                                             ((*(id_filter_table->id_filter + i)) <<
@@ -872,7 +872,7 @@ flexcan_status_t FLEXCAN_HAL_SetIdFilterTableElements(
                 val1 |= 1 << 30;
                 val2 |= 1 << 14;
                 j = 0;
-                for (i = 0; i < (data->num_id_filters + 1) * 8; i += 8)
+                for (i = 0; i < ((uint32_t)data->num_id_filters + 1) * 8; i += 8)
                 {
                     flexcan_reg_ptr->MB[6 + i - j * 3].CS = val1 +
                                                             ((*(id_filter_table->id_filter + i)) &
@@ -915,7 +915,7 @@ flexcan_status_t FLEXCAN_HAL_SetIdFilterTableElements(
             else
             {
                 j = 0;
-                for (i = 0; i < (data->num_id_filters + 1) * 8; i += 8)
+                for (i = 0; i < ((uint32_t)data->num_id_filters + 1) * 8; i += 8)
                 {
                     flexcan_reg_ptr->MB[6 + i - j * 3].CS = val1 +
                                                             (((*(id_filter_table->id_filter + i)) &
@@ -960,7 +960,7 @@ flexcan_status_t FLEXCAN_HAL_SetIdFilterTableElements(
             /* Four partial 8-bit Standard IDs per ID Filter Table element.*/
             BW_CAN_MCR_IDAM(canBaseAddr, kFlexCanRxFifoIdElementFormat_C);
             j = 0;
-            for (i = 0; i < (data->num_id_filters + 1) * 8; i += 16)
+            for (i = 0; i < ((uint32_t)data->num_id_filters + 1) * 8; i += 16)
             {
                 flexcan_reg_ptr->MB[6 + i - j * 3].CS = ((*(id_filter_table->id_filter + i)) &
                                                         FLEXCAN_RX_FIFO_ID_FILTER_FORMATC_MASK <<
@@ -1275,6 +1275,7 @@ uint8_t FLEXCAN_HAL_GetMbIntFlag(
     const flexcan_user_config_t *data,
     uint32_t mb_idx)
 {
+    (void) data;
     assert(data);
     assert(mb_idx < data->max_num_mb);
     uint32_t temp;
@@ -1842,4 +1843,3 @@ flexcan_status_t FLEXCAN_HAL_DisableOperationMode(
 /*******************************************************************************
  * EOF
  ******************************************************************************/
-

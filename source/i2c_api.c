@@ -76,7 +76,7 @@ int i2c_stop(i2c_t *obj) {
     volatile uint32_t n = 0;
     if (I2C_HAL_IsMaster(obj->i2c.base_addrs))
         I2C_HAL_SendStop(obj->i2c.base_addrs);
-    
+
     // It seems that there are timing problems
     // when there is no waiting time after a STOP.
     // This wait is also included on the samples
@@ -276,6 +276,7 @@ static void i2c_start_read_asynch(i2c_t *obj, uint8_t address, uint8_t is10_bit_
 
 void i2c_transfer_asynch(i2c_t *obj, void *tx, uint32_t tx_length, void *rx, uint32_t rx_length, uint32_t address, uint32_t stop, uint32_t handler, uint32_t event, DMAUsage hint)
 {
+    (void) hint;
     obj->i2c.dma_state = DMA_USAGE_NEVER;
     obj->i2c.generate_stop = stop;
     obj->i2c.address = address;
@@ -544,6 +545,7 @@ int i2c_slave_write(i2c_t *obj, const char *data, int length) {
 }
 
 void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask) {
+    (void) idx, (void) mask;
     I2C_HAL_SetUpperAddress7bit(obj->i2c.base_addrs, address & 0xfe);
 }
 #endif

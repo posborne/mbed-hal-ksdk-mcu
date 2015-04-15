@@ -769,7 +769,7 @@ static inline void SDHC_HAL_SetPeripheralClock(uint32_t baseAddr, bool enable)
 * frequency.
 *
 * @param baseAddr SDHC base address
-* @param enable to enable SD clock or not 
+* @param enable to enable SD clock or not
 */
 static inline void SDHC_HAL_SetSdClock(uint32_t baseAddr, bool enable)
 {
@@ -938,6 +938,7 @@ static inline uint32_t SDHC_HAL_DoesHostSupportV330(uint32_t baseAddr)
 */
 static inline uint32_t SDHC_HAL_DoesHostSupportV300(uint32_t baseAddr)
 {
+    (void) baseAddr;
 #if defined(FSL_FEATURE_SDHC_HAS_V300_SUPPORT) && FSL_FEATURE_SDHC_HAS_V300_SUPPORT
     return BR_SDHC_HTCAPBLT_VS30(baseAddr);
 #else
@@ -953,6 +954,7 @@ static inline uint32_t SDHC_HAL_DoesHostSupportV300(uint32_t baseAddr)
 */
 static inline uint32_t SDHC_HAL_DoesHostSupportV180(uint32_t baseAddr)
 {
+    (void) baseAddr;
 #if defined(FSL_FEATURE_SDHC_HAS_V180_SUPPORT) && FSL_FEATURE_SDHC_HAS_V180_SUPPORT
     return BR_SDHC_HTCAPBLT_VS18(baseAddr);
 #else
@@ -1233,4 +1235,3 @@ void SDHC_HAL_Init(uint32_t baseAddr);
 /*************************************************************************************************
  * EOF
  ************************************************************************************************/
-

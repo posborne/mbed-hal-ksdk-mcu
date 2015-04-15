@@ -19,7 +19,14 @@
 #include "fsl_smc_hal.h"
 
 void sleep(void) {
-    smc_power_mode_protection_config_t sleep_config = {true};
+    smc_power_mode_protection_config_t sleep_config = {
+        .vlpProt = true,            /*!< VLP protect*/
+        .llsProt = true,            /*!< LLS protect */
+        .vllsProt = true,           /*!< VLLS protect*/
+#if FSL_FEATURE_SMC_HAS_HIGH_SPEED_RUN_MODE
+        .hsrunProt = true,          /*!< HSRUN protect */
+#endif
+    };
     SMC_HAL_SetProtection(SMC_BASE, &sleep_config);
 
     SCB->SCR &= ~SCB_SCR_SLEEPDEEP_Msk;
@@ -29,7 +36,14 @@ void sleep(void) {
 void deepsleep(void) {
     mcg_clock_select_t mcg_clock = CLOCK_HAL_GetClkSrcMode(MCG_BASE);
 
-    smc_power_mode_protection_config_t sleep_config = {true};
+    smc_power_mode_protection_config_t sleep_config = {
+        .vlpProt = true,            /*!< VLP protect*/
+        .llsProt = true,            /*!< LLS protect */
+        .vllsProt = true,           /*!< VLLS protect*/
+#if FSL_FEATURE_SMC_HAS_HIGH_SPEED_RUN_MODE
+        .hsrunProt = true,          /*!< HSRUN protect */
+#endif
+    };
     SMC_HAL_SetProtection(SMC_BASE, &sleep_config);
     SMC->PMCTRL = SMC_PMCTRL_STOPM(2);
 

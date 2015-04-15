@@ -93,6 +93,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
 }
 
 void spi_free(spi_t *obj) {
+    (void) obj;
     // [TODO]
 }
 void spi_format(spi_t *obj, int bits, int mode, int slave) {
