@@ -69,6 +69,7 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
 }
 
 void pwmout_free(pwmout_t* obj) {
+    (void) obj;
 }
 
 void pwmout_write(pwmout_t* obj, float value) {
@@ -90,7 +91,7 @@ void pwmout_write(pwmout_t* obj, float value) {
 
 float pwmout_read(pwmout_t* obj) {
     uint32_t ftm_addrs[] = FTM_BASE_ADDRS;
-    uint16_t count = FTM_HAL_GetChnCountVal(ftm_addrs[obj->pwm_name >> TPM_SHIFT], obj->pwm_name & 0xF, 0);
+    uint16_t count = FTM_HAL_GetChnCountVal(ftm_addrs[obj->pwm_name >> TPM_SHIFT], obj->pwm_name & 0xF);
     uint16_t mod = FTM_HAL_GetMod(ftm_addrs[obj->pwm_name >> TPM_SHIFT]);
     if (mod == 0)
         return 0.0;

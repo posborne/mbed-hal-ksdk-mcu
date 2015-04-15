@@ -62,7 +62,7 @@
  *   FBE -> PBE
  *   FBE -> BLPE
  *
- *   PBE -> FBE 
+ *   PBE -> FBE
  *   PBE -> PEE
  *   PBE -> BLPE
  *
@@ -85,7 +85,7 @@ mcg_modes_t CLOCK_HAL_GetMcgMode(uint32_t baseAddr)
     /* Check MSG is in FEI mode */
     if ((CLOCK_HAL_GetClkStatMode(baseAddr) == kMcgClkStatFll) &&        /* CLKS mux is FLL output (CLKST=0) */
         (CLOCK_HAL_GetInternalRefStatMode(baseAddr) == kMcgInternalRefStatInternal)      /* FLL ref is internal ref clk (IREFST=1) */
-#if FSL_FEATURE_MCG_HAS_PLL          
+#if FSL_FEATURE_MCG_HAS_PLL
         && (CLOCK_HAL_GetPllStatMode(baseAddr) == kMcgPllStatFll))          /* PLLS mux is FLL (PLLST=0) */
 #else
         )
@@ -96,20 +96,20 @@ mcg_modes_t CLOCK_HAL_GetMcgMode(uint32_t baseAddr)
     /* Check MCG is in PEE mode */
     else if ((CLOCK_HAL_GetClkStatMode(baseAddr) == kMcgClkStatPll) &&   /* CLKS mux is PLL output (CLKST=3) */
              (CLOCK_HAL_GetInternalRefStatMode(baseAddr) == kMcgInternalRefStatExternal)  /* FLL ref is external ref clk (IREFST=0) */
-#if FSL_FEATURE_MCG_HAS_PLL                    
+#if FSL_FEATURE_MCG_HAS_PLL
          && (CLOCK_HAL_GetPllStatMode(baseAddr) == kMcgPllStatPllClkSel))   /* PLLS mux is PLL or PLLCS (PLLST=1) */
 #else
       )
-#endif      
+#endif
     {
         return kMcgModePEE;                              /* return PEE code */
     }
     /* Check MCG is in PBE mode */
     else if ((CLOCK_HAL_GetClkStatMode(baseAddr) == kMcgClkStatExternalRef) &&  /* CLKS mux is external ref clk (CLKST=2) */
              (CLOCK_HAL_GetInternalRefStatMode(baseAddr) == kMcgInternalRefStatExternal) && /* FLL ref is external ref clk (IREFST=0) */
-#if FSL_FEATURE_MCG_HAS_PLL                    
+#if FSL_FEATURE_MCG_HAS_PLL
              (CLOCK_HAL_GetPllStatMode(baseAddr) == kMcgPllStatPllClkSel) && /* PLLS mux is PLL or PLLCS (PLLST=1) */
-#endif               
+#endif
              (CLOCK_HAL_GetLowPowerMode(baseAddr) == kMcgLowPowerSelNormal))  /* MCG_C2[LP] bit is not set (LP=0) */
     {
         return kMcgModePBE;                              /* return PBE code */
@@ -117,10 +117,10 @@ mcg_modes_t CLOCK_HAL_GetMcgMode(uint32_t baseAddr)
     /* Check MCG is in FBE mode */
     else if ((CLOCK_HAL_GetClkStatMode(baseAddr) == kMcgClkStatExternalRef) &&  /* CLKS mux is external ref clk (CLKST=2) */
              (CLOCK_HAL_GetInternalRefStatMode(baseAddr) == kMcgInternalRefStatExternal) && /* FLL ref is external ref clk (IREFST=0) */
-#if FSL_FEATURE_MCG_HAS_PLL                 
+#if FSL_FEATURE_MCG_HAS_PLL
              (CLOCK_HAL_GetPllStatMode(baseAddr) == kMcgPllStatFll) &&   /* PLLS mux is FLL (PLLST=0) */
-#endif               
-             (CLOCK_HAL_GetLowPowerMode(baseAddr) == kMcgLowPowerSelNormal))  /* MCG_C2[LP] bit is not set (LP=0) */  
+#endif
+             (CLOCK_HAL_GetLowPowerMode(baseAddr) == kMcgLowPowerSelNormal))  /* MCG_C2[LP] bit is not set (LP=0) */
     {
         return kMcgModeFBE;                              /* return FBE code */
     }
@@ -134,9 +134,9 @@ mcg_modes_t CLOCK_HAL_GetMcgMode(uint32_t baseAddr)
     /* Check if in BLPI mode */
     else if ((CLOCK_HAL_GetClkStatMode(baseAddr) == kMcgClkStatInternalRef) &&  /* CLKS mux in internal ref clk (CLKST=1) */
              (CLOCK_HAL_GetInternalRefStatMode(baseAddr) == kMcgInternalRefStatInternal) && /* FLL ref is internal ref clk (IREFST=1) */
-#if FSL_FEATURE_MCG_HAS_PLL                 
+#if FSL_FEATURE_MCG_HAS_PLL
              (CLOCK_HAL_GetPllStatMode(baseAddr) == kMcgPllStatFll) &&   /* PLLS mux is FLL (PLLST=0) */
-#endif               
+#endif
              (CLOCK_HAL_GetLowPowerMode(baseAddr) == kMcgLowPowerSelLowPower))/* MCG_C2[LP] bit is set (LP=1) */
     {
         return kMcgModeBLPI;                             /* return BLPI code */
@@ -144,21 +144,21 @@ mcg_modes_t CLOCK_HAL_GetMcgMode(uint32_t baseAddr)
     /* Check if in FBI mode */
     else if ((CLOCK_HAL_GetClkStatMode(baseAddr) == kMcgClkStatInternalRef) &&  /* CLKS mux in internal ref clk (CLKST=1) */
              (CLOCK_HAL_GetInternalRefStatMode(baseAddr) == kMcgInternalRefStatInternal) && /* FLL ref is internal ref clk (IREFST=1) */
-#if FSL_FEATURE_MCG_HAS_PLL                 
+#if FSL_FEATURE_MCG_HAS_PLL
              (CLOCK_HAL_GetPllStatMode(baseAddr) == kMcgPllStatFll) &&   /* PLLS mux is FLL (PLLST=0) */
-#endif               
+#endif
              (CLOCK_HAL_GetLowPowerMode(baseAddr) == kMcgLowPowerSelNormal))  /* MCG_C2[LP] bit is not set (LP=0) */
-    {  
+    {
         return kMcgModeFBI;                              /* return FBI code */
     }
     /* Check MCG is in FEE mode */
     else if ((CLOCK_HAL_GetClkStatMode(baseAddr) == kMcgClkStatFll) &&   /* CLKS mux is FLL output (CLKST=0) */
              (CLOCK_HAL_GetInternalRefStatMode(baseAddr) == kMcgInternalRefStatExternal) /* FLL ref is external ref clk (IREFST=0) */
-#if FSL_FEATURE_MCG_HAS_PLL                 
+#if FSL_FEATURE_MCG_HAS_PLL
           && (CLOCK_HAL_GetPllStatMode(baseAddr) == kMcgPllStatFll))     /* PLLS mux is FLL (PLLST=0) */
 #else
       )
-#endif      
+#endif
     {
         return kMcgModeFEE;                              /* return FEE code */
     }
@@ -181,13 +181,13 @@ mcg_modes_t CLOCK_HAL_GetMcgMode(uint32_t baseAddr)
 uint32_t CLOCK_HAL_GetFllFrequency(uint32_t baseAddr, int32_t fllRef)
 {
     int32_t fllFreqHz = 0;
-  
+
     /* Check that only allowed ranges have been selected */
     if (CLOCK_HAL_GetDigitalControlledOscRangeMode(baseAddr) > kMcgDigitalControlledOscRangeSelMid)
     {
         return kMcgErrFllDrstDrsRange; /* return error code if DRS range 2 or 3 selected */
     }
-  
+
     /* if DMX32 set */
     if (CLOCK_HAL_GetDmx32(baseAddr))
     {
@@ -196,44 +196,44 @@ uint32_t CLOCK_HAL_GetFllFrequency(uint32_t baseAddr, int32_t fllRef)
         {
         case 0:
             fllFreqHz = (fllRef * kMcgConstant732);
-            if (fllFreqHz < kMcgConstant20000000) 
+            if (fllFreqHz < kMcgConstant20000000)
             {
                 return kMcgErrFllRange0Min;
             }
-            else if (fllFreqHz > kMcgConstant25000000) 
+            else if (fllFreqHz > kMcgConstant25000000)
             {
                 return kMcgErrFllRange0Max;
             }
             break;
         case 1:
             fllFreqHz = (fllRef * kMcgConstant1464);
-            if (fllFreqHz < kMcgConstant40000000) 
+            if (fllFreqHz < kMcgConstant40000000)
             {
                 return kMcgErrFllRange1Min;
             }
-            else if (fllFreqHz > kMcgConstant50000000) 
+            else if (fllFreqHz > kMcgConstant50000000)
             {
                 return kMcgErrFllRange1Max;
             }
             break;
         case 2:
             fllFreqHz = (fllRef * kMcgConstant2197);
-            if (fllFreqHz < kMcgConstant60000000) 
+            if (fllFreqHz < kMcgConstant60000000)
             {
                 return kMcgErrFllRange2Min;
             }
-            else if (fllFreqHz > kMcgConstant75000000) 
+            else if (fllFreqHz > kMcgConstant75000000)
             {
                 return kMcgErrFllRange2Max;
             }
             break;
         case 3:
             fllFreqHz = (fllRef * kMcgConstant2929);
-            if (fllFreqHz < kMcgConstant80000000) 
+            if (fllFreqHz < kMcgConstant80000000)
             {
                 return kMcgErrFllRange3Min;
             }
-            else if (fllFreqHz > kMcgConstant100000000) 
+            else if (fllFreqHz > kMcgConstant100000000)
             {
                 return kMcgErrFllRange3Max;
             }
@@ -243,51 +243,51 @@ uint32_t CLOCK_HAL_GetFllFrequency(uint32_t baseAddr, int32_t fllRef)
         }
     }
     /* if DMX32 = 0 */
-    else 
+    else
     {
         /* determine multiplier based on DRS */
         switch (CLOCK_HAL_GetDigitalControlledOscRangeMode(baseAddr))
         {
         case 0:
             fllFreqHz = (fllRef * kMcgConstant640);
-            if (fllFreqHz < kMcgConstant20000000) 
+            if (fllFreqHz < kMcgConstant20000000)
             {
                 return kMcgErrFllRange0Min;
             }
-            else if (fllFreqHz > kMcgConstant25000000) 
+            else if (fllFreqHz > kMcgConstant25000000)
             {
                 return kMcgErrFllRange0Max;
             }
             break;
         case 1:
             fllFreqHz = (fllRef * kMcgConstant1280);
-            if (fllFreqHz < kMcgConstant40000000) 
+            if (fllFreqHz < kMcgConstant40000000)
             {
                 return kMcgErrFllRange1Min;
             }
-            else if (fllFreqHz > kMcgConstant50000000) 
+            else if (fllFreqHz > kMcgConstant50000000)
             {
                 return kMcgErrFllRange1Max;
             }
             break;
         case 2:
             fllFreqHz = (fllRef * kMcgConstant1920);
-            if (fllFreqHz < kMcgConstant60000000) 
+            if (fllFreqHz < kMcgConstant60000000)
             {
                 return kMcgErrFllRange2Min;
             }
-            else if (fllFreqHz > kMcgConstant75000000) 
+            else if (fllFreqHz > kMcgConstant75000000)
             {
                 return kMcgErrFllRange2Max;
             }
             break;
         case 3:
             fllFreqHz = (fllRef * kMcgConstant2560);
-            if (fllFreqHz < kMcgConstant80000000) 
+            if (fllFreqHz < kMcgConstant80000000)
             {
                 return kMcgErrFllRange3Min;
             }
-            else if (fllFreqHz > kMcgConstant100000000) 
+            else if (fllFreqHz > kMcgConstant100000000)
             {
                 return kMcgErrFllRange3Max;
             }
@@ -295,7 +295,7 @@ uint32_t CLOCK_HAL_GetFllFrequency(uint32_t baseAddr, int32_t fllRef)
         default:
             break;
         }
-    }    
+    }
     return fllFreqHz;
 }   /* CLOCK_HAL_GetFllFrequency */
 
@@ -304,12 +304,12 @@ uint32_t CLOCK_HAL_GetFllFrequency(uint32_t baseAddr, int32_t fllRef)
  *
  * Functon name : CLOCK_HAL_SetFeiToFeeMode
  * Description  : Mode transition FEI to FEE mode
- * This function transitions the MCG from FEI mode to FEE mode. 
+ * This function transitions the MCG from FEI mode to FEE mode.
  *
- * Parameters: oscselVal  - oscillator selection value 
+ * Parameters: oscselVal  - oscillator selection value
  *                          (eunm defined in mcg_oscsel_select_t)
  *                          0: kMcgOscselOsc, Selects System Oscillator (OSCCLK)
- *                          1: kMcgOscselRtc, Selects 32 kHz RTC Oscillator 
+ *                          1: kMcgOscselRtc, Selects 32 kHz RTC Oscillator
  *                          2: kMcgOscselIrc, Selects 48 MHz IRC Oscillator (K70)
  *             crystalVal - external clock frequency in Hz
  *                          oscselVal - 0
@@ -321,12 +321,12 @@ uint32_t CLOCK_HAL_GetFllFrequency(uint32_t baseAddr, int32_t fllRef)
  *                          for the crystal oscillator. This value is only valid when
  *                          oscselVal is 0 and erefsVal is 1.
  *                          (enum defined in mcg_high_gain_osc_select_t)
- *                          0: kMcgHgoSelectLow,  Configure for low-power operation 
- *                          1: kMcgHgoSelectHigh, Configure for high-gain operation 
- *             erefsVal   - selects external clock or crystal osc 
+ *                          0: kMcgHgoSelectLow,  Configure for low-power operation
+ *                          1: kMcgHgoSelectHigh, Configure for high-gain operation
+ *             erefsVal   - selects external clock or crystal osc
  *                          (enum defined in mcg_external_ref_clock_select_t)
- *                          0: kMcgErefClockSelectExt, External reference clock requested 
- *                          1: kMcgErefClockSelectOsc, Oscillator requested 
+ *                          0: kMcgErefClockSelectExt, External reference clock requested
+ *                          1: kMcgErefClockSelectOsc, Oscillator requested
  *
  * Return value : MCGCLKOUT frequency (Hz) or error code
  *END***********************************************************************************/
@@ -334,7 +334,7 @@ uint32_t CLOCK_HAL_SetFeiToFeeMode(uint32_t baseAddr, mcg_oscsel_select_t oscsel
 {
     uint8_t frDivVal;
     uint32_t mcgOut, fllRefFreq, i;
-  
+
     /* check if in FEI mode */
     if (CLOCK_HAL_GetMcgMode(baseAddr) != kMcgModeFEI)
     {
@@ -342,11 +342,11 @@ uint32_t CLOCK_HAL_SetFeiToFeeMode(uint32_t baseAddr, mcg_oscsel_select_t oscsel
     }
 
     /* check external frequency is less than the maximum frequency */
-    if  (crystalVal > kMcgConstant50000000) 
+    if  (crystalVal > kMcgConstant50000000)
     {
         return kMcgErrOscEtalRange;       /* - external frequency is bigger than max frequency */
     }
-  
+
     /* check crystal frequency is within spec. if crystal osc is being used */
     if (oscselVal == kMcgOscselOsc)
     {
@@ -355,10 +355,10 @@ uint32_t CLOCK_HAL_SetFeiToFeeMode(uint32_t baseAddr, mcg_oscsel_select_t oscsel
             /* return error if one of the available crystal options is not available */
             if ((crystalVal < kMcgConstant30000) ||
                 ((crystalVal > kMcgConstant40000) && (crystalVal < kMcgConstant3000000)) ||
-                (crystalVal > kMcgConstant32000000)) 
+                (crystalVal > kMcgConstant32000000))
             {
                 return kMcgErrOscXtalRange; /* - crystal frequency outside allowed range */
-            } 
+            }
 
             /* config the hgo settings */
             CLOCK_HAL_SetHighGainOsc0Mode(baseAddr, hgoVal);
@@ -368,9 +368,9 @@ uint32_t CLOCK_HAL_SetFeiToFeeMode(uint32_t baseAddr, mcg_oscsel_select_t oscsel
         CLOCK_HAL_SetExternalRefSel0Mode(baseAddr, erefsVal);
     }
 
-    /* 
-     * the RANGE value is determined by the external frequency. Since the RANGE parameter 
-     * affects the FRDIV divide value it still needs to be set correctly even if the 
+    /*
+     * the RANGE value is determined by the external frequency. Since the RANGE parameter
+     * affects the FRDIV divide value it still needs to be set correctly even if the
      * oscillator is not being used
      */
     if (crystalVal <= kMcgConstant40000)
@@ -388,31 +388,31 @@ uint32_t CLOCK_HAL_SetFeiToFeeMode(uint32_t baseAddr, mcg_oscsel_select_t oscsel
 
     /* determine FRDIV based on reference clock frequency */
     /* since the external frequency has already been checked only the maximum frequency for each FRDIV value needs to be compared here. */
-    if (crystalVal <= kMcgConstant1250000) 
+    if (crystalVal <= kMcgConstant1250000)
     {
         frDivVal = kMcgConstant0;
     }
-    else if (crystalVal <= kMcgConstant2500000) 
+    else if (crystalVal <= kMcgConstant2500000)
     {
         frDivVal = kMcgConstant1;
     }
-    else if (crystalVal <= kMcgConstant5000000) 
+    else if (crystalVal <= kMcgConstant5000000)
     {
         frDivVal = kMcgConstant2;
     }
-    else if (crystalVal <= kMcgConstant10000000) 
+    else if (crystalVal <= kMcgConstant10000000)
     {
         frDivVal = kMcgConstant3;
     }
-    else if (crystalVal <= kMcgConstant20000000) 
+    else if (crystalVal <= kMcgConstant20000000)
     {
         frDivVal = kMcgConstant4;
     }
-    else 
+    else
     {
         frDivVal = kMcgConstant5;
     }
-   
+
     /* The FLL ref clk divide value depends on FRDIV and the RANGE value */
     if (CLOCK_HAL_GetRange0Mode(baseAddr) > kMcgFreqRangeSelLow)
     {
@@ -425,16 +425,16 @@ uint32_t CLOCK_HAL_SetFeiToFeeMode(uint32_t baseAddr, mcg_oscsel_select_t oscsel
 
     /* Check resulting FLL frequency  */
     /* FLL reference frequency calculated from ext ref freq and FRDIV */
-    mcgOut = CLOCK_HAL_GetFllFrequency(baseAddr, fllRefFreq);      
-    if (mcgOut < kMcgErrMax) 
+    mcgOut = CLOCK_HAL_GetFllFrequency(baseAddr, fllRefFreq);
+    if (mcgOut < kMcgErrMax)
     {
         return mcgOut;  /* If error code returned, return the code to calling function */
     }
 
-    /* 
+    /*
      * Select external oscilator and Reference Divider and clear IREFS to start ext osc
-     * If IRCLK is required it must be enabled outside of this driver, existing state will 
-     * be maintained CLKS=0, FRDIV=frdivVal, IREFS=0 
+     * If IRCLK is required it must be enabled outside of this driver, existing state will
+     * be maintained CLKS=0, FRDIV=frdivVal, IREFS=0
      */
     CLOCK_HAL_SetClksFrdivInternalRefSelect(baseAddr, kMcgClkSelOut, frDivVal, kMcgInternalRefClkSrcExternal);
 
@@ -452,7 +452,7 @@ uint32_t CLOCK_HAL_SetFeiToFeeMode(uint32_t baseAddr, mcg_oscsel_select_t oscsel
         if (!CLOCK_HAL_GetOscInit0(baseAddr))
         {
             /* check bit is really set and return with error if not set */
-            return kMcgErrOscSetTimeout; 
+            return kMcgErrOscSetTimeout;
         }
     }
 
@@ -465,19 +465,19 @@ uint32_t CLOCK_HAL_SetFeiToFeeMode(uint32_t baseAddr, mcg_oscsel_select_t oscsel
         }
     }
 
-    if (CLOCK_HAL_GetClkStatMode(baseAddr) != kMcgClkStatFll) 
+    if (CLOCK_HAL_GetClkStatMode(baseAddr) != kMcgClkStatFll)
     {
         return kMcgErrClkst0; // check FLL is really selected and return with error if not
     }
 
-    /* 
-     * Now in FEE  
-     * It is recommended that the clock monitor is enabled when using an external clock as the 
-     * clock source/reference. 
+    /*
+     * Now in FEE
+     * It is recommended that the clock monitor is enabled when using an external clock as the
+     * clock source/reference.
      * It is enabled here but can be removed if this is not required.
      */
     CLOCK_HAL_SetClkMonitor0Cmd(baseAddr, true);
-    
+
     return mcgOut; /* MCGOUT frequency equals FLL frequency */
 } /* CLOCK_HAL_SetFeiToFeeMode */
 
@@ -485,7 +485,7 @@ uint32_t CLOCK_HAL_SetFeiToFeeMode(uint32_t baseAddr, mcg_oscsel_select_t oscsel
  *
  * Functon name : CLOCK_HAL_SetFeiToFbiMode
  * Description  : Mode transition FEI to FBI mode
- * This function transitions the MCG from FEI mode to FBI mode. 
+ * This function transitions the MCG from FEI mode to FBI mode.
  *
  * Parameters: ircFreq       - internal reference clock frequency value
  *             ircSelect     - slow or fast clock selection
@@ -496,17 +496,17 @@ uint32_t CLOCK_HAL_SetFeiToFbiMode(uint32_t baseAddr, uint32_t ircFreq, mcg_inte
 {
     uint8_t fcrDivVal;
     uint16_t i;
-  
+
     /* Check MCG is in FEI mode */
     if (CLOCK_HAL_GetMcgMode(baseAddr) != kMcgModeFEI)
     {
         return kMcgErrNotInFeiMode;                 /* return error code */
-    } 
+    }
 
 
     /* Check that the irc frequency matches the selected IRC  */
     if (!(ircSelect))
-    {    
+    {
         if ((ircFreq < kMcgConstant31250) || (ircFreq > kMcgConstant39063))
         {
             return kMcgErrIrcSlowRange;
@@ -522,7 +522,7 @@ uint32_t CLOCK_HAL_SetFeiToFbiMode(uint32_t baseAddr, uint32_t ircFreq, mcg_inte
 
     /* Select the desired IRC */
     CLOCK_HAL_SetInternalRefClkSelMode(baseAddr, ircSelect);
-  
+
     /* Change the CLKS mux to select the IRC as the MCGOUT */
     CLOCK_HAL_SetClkSrcMode(baseAddr, kMcgClkSelInternal);
 
@@ -542,7 +542,7 @@ uint32_t CLOCK_HAL_SetFeiToFbiMode(uint32_t baseAddr, uint32_t ircFreq, mcg_inte
         if (MCG_S & MCG_S_IRCST_MASK)
         {
             /* check bit is really clear and return with error if set */
-            return kMcgErrIrcstClearTimeout; 
+            return kMcgErrIrcstClearTimeout;
         }
     }
     else
@@ -557,44 +557,44 @@ uint32_t CLOCK_HAL_SetFeiToFbiMode(uint32_t baseAddr, uint32_t ircFreq, mcg_inte
         if (!(MCG_S & MCG_S_IRCST_MASK))
         {
             /* check bit is really set and return with error if not set */
-            return kMcgErrIrefstSetTimeout1; 
+            return kMcgErrIrefstSetTimeout1;
         }
     }
-  
+
     /* Wait for clock status bits to update */
     for (i = 0 ; i < kMcgConstant2000 ; i++)
     {
         if (CLOCK_HAL_GetClkStatMode(baseAddr) == kMcgClkStatInternalRef)
         {
-            break; /* jump out early if CLKST shows IRC slected before loop finishes */  
+            break; /* jump out early if CLKST shows IRC slected before loop finishes */
         }
     }
- 
+
     if (CLOCK_HAL_GetClkStatMode(baseAddr) != kMcgClkStatInternalRef)
     {
         /* check IRC is really selected and return with error if not */
-        return kMcgErrClkst1; 
+        return kMcgErrClkst1;
     }
-  
+
     /* Now in FBI mode */
     if (ircSelect == kMcgInternalRefClkSelFast)
     {
         fcrDivVal = CLOCK_HAL_GetFastClkInternalRefDivider(baseAddr);
 
         /* MCGOUT frequency equals fast IRC frequency divided by 2 */
-        return (ircFreq / fcrDivVal); 
+        return (ircFreq / fcrDivVal);
     }
     else
     {
         return ircFreq; /* MCGOUT frequency equals slow IRC frequency */
-    }   
+    }
 }   /* CLOCK_HAL_SetFeiToFbiMode */
 
 /*FUNCTION******************************************************************************
  *
  * Functon name : CLOCK_HAL_SetFeiToFbeMode
  * Description  : Mode transition FEI to FBE mode
- * This function transitions the MCG from FEI mode to FBE mode. 
+ * This function transitions the MCG from FEI mode to FBE mode.
  *
  * Parameters: oscselVal  - oscillator selection value
  *                          0 - OSC 0,  1 - RTC 32k, 2 - IRC 48M
@@ -607,7 +607,7 @@ uint32_t CLOCK_HAL_SetFeiToFbiMode(uint32_t baseAddr, uint32_t ircFreq, mcg_inte
  *             hgoVal     - selects whether low power or high gain mode is selected
  *                          for the crystal oscillator. This value is only valid when
  *                          oscselVal is 0 and erefsVal is 1.
- *             erefsVal   - selects external clock (=0) or crystal osc (=1) 
+ *             erefsVal   - selects external clock (=0) or crystal osc (=1)
  *
  * Return value : MCGCLKOUT frequency (Hz) or error code
  *END***********************************************************************************/
@@ -615,7 +615,7 @@ uint32_t CLOCK_HAL_SetFeiToFbeMode(uint32_t baseAddr, mcg_oscsel_select_t oscsel
 {
     uint8_t frDivVal;
     int16_t i;
-  
+
     /* check if in FEI mode */
     if (CLOCK_HAL_GetMcgMode(baseAddr) != kMcgModeFEI)
     {
@@ -623,12 +623,12 @@ uint32_t CLOCK_HAL_SetFeiToFbeMode(uint32_t baseAddr, mcg_oscsel_select_t oscsel
     }
 
     /* check external frequency is less than the maximum frequency */
-    if  (crystalVal > kMcgConstant50000000) 
+    if  (crystalVal > kMcgConstant50000000)
     {
         /* - external frequency is bigger than max frequency */
-        return kMcgErrOscEtalRange;       
+        return kMcgErrOscEtalRange;
     }
-  
+
     /* check crystal frequency is within spec. if crystal osc is being used */
     if (oscselVal == kMcgOscselOsc)
     {
@@ -637,11 +637,11 @@ uint32_t CLOCK_HAL_SetFeiToFbeMode(uint32_t baseAddr, mcg_oscsel_select_t oscsel
             /* return error if one of the available crystal options is not available */
             if ((crystalVal < kMcgConstant30000) ||
                 ((crystalVal > kMcgConstant40000) && (crystalVal < kMcgConstant3000000)) ||
-                (crystalVal > kMcgConstant32000000)) 
+                (crystalVal > kMcgConstant32000000))
             {
                 /* - crystal frequency outside allowed range */
-                return kMcgErrOscXtalRange; 
-            } 
+                return kMcgErrOscXtalRange;
+            }
 
             /* config the hgo settings */
             CLOCK_HAL_SetHighGainOsc0Mode(baseAddr, hgoVal);
@@ -651,9 +651,9 @@ uint32_t CLOCK_HAL_SetFeiToFbeMode(uint32_t baseAddr, mcg_oscsel_select_t oscsel
         CLOCK_HAL_SetExternalRefSel0Mode(baseAddr, erefsVal);
     }
 
-    /* 
-     * the RANGE value is determined by the external frequency. Since the RANGE parameter           
-     * affects the FRDIV divide value it still needs to be set correctly even if the 
+    /*
+     * the RANGE value is determined by the external frequency. Since the RANGE parameter
+     * affects the FRDIV divide value it still needs to be set correctly even if the
      * oscillator is not being used
      */
     if (crystalVal <= kMcgConstant40000)
@@ -671,38 +671,38 @@ uint32_t CLOCK_HAL_SetFeiToFbeMode(uint32_t baseAddr, mcg_oscsel_select_t oscsel
 
     /* determine FRDIV based on reference clock frequency */
     /* since the external frequency has already been checked only the maximum frequency for each FRDIV value needs to be compared here. */
-    if (crystalVal <= kMcgConstant1250000) 
+    if (crystalVal <= kMcgConstant1250000)
     {
         frDivVal = kMcgConstant0;
     }
-    else if (crystalVal <= kMcgConstant2500000) 
+    else if (crystalVal <= kMcgConstant2500000)
     {
         frDivVal = kMcgConstant1;
     }
-    else if (crystalVal <= kMcgConstant5000000) 
+    else if (crystalVal <= kMcgConstant5000000)
     {
         frDivVal = kMcgConstant2;
     }
-    else if (crystalVal <= kMcgConstant10000000) 
+    else if (crystalVal <= kMcgConstant10000000)
     {
         frDivVal = kMcgConstant3;
     }
-    else if (crystalVal <= kMcgConstant20000000) 
+    else if (crystalVal <= kMcgConstant20000000)
     {
         frDivVal = kMcgConstant4;
     }
-    else 
+    else
     {
         frDivVal = kMcgConstant5;
     }
-     
+
     /* Set LP bit to enable the FLL */
     CLOCK_HAL_SetLowPowerMode(baseAddr, kMcgLowPowerSelNormal);
 
-    /* 
+    /*
      * Select external oscilator and Reference Divider and clear IREFS to start ext osc
-     * If IRCLK is required it must be enabled outside of this driver, existing state will 
-     * be maintained CLKS=0, FRDIV=frdivVal, IREFS=0 
+     * If IRCLK is required it must be enabled outside of this driver, existing state will
+     * be maintained CLKS=0, FRDIV=frdivVal, IREFS=0
      */
     CLOCK_HAL_SetClksFrdivInternalRefSelect(baseAddr, kMcgClkSelExternal, frDivVal, kMcgInternalRefClkSrcExternal);
 
@@ -720,7 +720,7 @@ uint32_t CLOCK_HAL_SetFeiToFbeMode(uint32_t baseAddr, mcg_oscsel_select_t oscsel
         if (!CLOCK_HAL_GetOscInit0(baseAddr))
         {
             /* check bit is really set and return with error if not set */
-            return kMcgErrOscSetTimeout; 
+            return kMcgErrOscSetTimeout;
         }
     }
 
@@ -736,7 +736,7 @@ uint32_t CLOCK_HAL_SetFeiToFbeMode(uint32_t baseAddr, mcg_oscsel_select_t oscsel
     if (CLOCK_HAL_GetInternalRefStatMode(baseAddr))
     {
         /* check bit is really clear and return with error if not set */
-        return kMcgErrIrefstClearTimeOut; 
+        return kMcgErrIrefstClearTimeOut;
     }
 
     /* Wait for clock status bits to show clock source is ext ref clk */
@@ -753,13 +753,13 @@ uint32_t CLOCK_HAL_SetFeiToFbeMode(uint32_t baseAddr, mcg_oscsel_select_t oscsel
         return kMcgErrClkst2; /* check EXT CLK is really selected and return with error if not */
     }
 
-    /* 
-     * Now in FBE  
+    /*
+     * Now in FBE
      * It is recommended that the clock monitor is enabled when using an external clock as the clock source/reference.
      * It is enabled here but can be removed if this is not required.
      */
     CLOCK_HAL_SetClkMonitor0Cmd(baseAddr, true);
-    
+
     return crystalVal; /* MCGOUT frequency equals external clock frequency */
 }   /* CLOCK_HAL_SetFeiToFbeMode */
 
@@ -767,7 +767,7 @@ uint32_t CLOCK_HAL_SetFeiToFbeMode(uint32_t baseAddr, mcg_oscsel_select_t oscsel
  *
  * Functon name : CLOCK_HAL_SetFeeToFeiMode
  * Description  : Mode transition FEE to FEI mode
- * This function transitions the MCG from FEE mode to FEI mode. 
+ * This function transitions the MCG from FEE mode to FEI mode.
  *
  * Parameters: ircFreq       - internal reference clock frequency value (slow)
  *
@@ -782,8 +782,8 @@ uint32_t CLOCK_HAL_SetFeeToFeiMode(uint32_t baseAddr, uint32_t ircFreq)
     if (CLOCK_HAL_GetMcgMode(baseAddr) != kMcgModeFEE)
     {
         return kMcgErrNotInFeeMode;                 /* return error code */
-    } 
-      
+    }
+
     /* Check IRC frequency is within spec. */
     if ((ircFreq < kMcgConstant31250) || (ircFreq > kMcgConstant39063))
     {
@@ -791,21 +791,21 @@ uint32_t CLOCK_HAL_SetFeeToFeiMode(uint32_t baseAddr, uint32_t ircFreq)
     }
 
     /* Check resulting FLL frequency */
-    mcgOut = CLOCK_HAL_GetFllFrequency(baseAddr, ircFreq); 
-    if (mcgOut < kMcgErrMax) 
+    mcgOut = CLOCK_HAL_GetFllFrequency(baseAddr, ircFreq);
+    if (mcgOut < kMcgErrMax)
     {
         /* If error code returned, return the code to calling function */
         return mcgOut;
-    } 
-  
-    /* Ensure clock monitor is disabled before switching to FEI otherwise 
-     * a loss of clock will trigger 
+    }
+
+    /* Ensure clock monitor is disabled before switching to FEI otherwise
+     * a loss of clock will trigger
      */
     CLOCK_HAL_SetClkMonitor0Cmd(baseAddr, false);
 
     /* Change FLL reference clock from external to internal by setting IREFS bit */
     CLOCK_HAL_SetInternalRefSelMode(baseAddr, kMcgInternalRefClkSrcSlow);
-  
+
     /* wait for Reference clock to switch to internal reference */
     for (i = 0 ; i < kMcgConstant2000 ; i++)
     {
@@ -818,18 +818,18 @@ uint32_t CLOCK_HAL_SetFeeToFeiMode(uint32_t baseAddr, uint32_t ircFreq)
     if (CLOCK_HAL_GetInternalRefStatMode(baseAddr) != kMcgInternalRefStatInternal)
     {
         /* check bit is really set and return with error if not set */
-        return kMcgErrIrefstSetTimeout; 
+        return kMcgErrIrefstSetTimeout;
     }
-    
+
     /* Now in FEI mode */
-    return mcgOut;  
+    return mcgOut;
 } /* CLOCK_HAL_SetFeeToFeiMode */
 
 /*FUNCTION******************************************************************************
  *
  * Functon name : CLOCK_HAL_SetFeeToFbiMode
  * Description  : Mode transition FEE to FBI mode
- * This function transitions the MCG from FEE mode to FBI mode. 
+ * This function transitions the MCG from FEE mode to FBI mode.
  *
  * Parameters: ircFreq       - internal reference clock frequency value
  *             ircSelect     - slow or fast clock selection
@@ -838,41 +838,41 @@ uint32_t CLOCK_HAL_SetFeeToFeiMode(uint32_t baseAddr, uint32_t ircFreq)
  * Return value : MCGCLKOUT frequency (Hz) or error code
  *END***********************************************************************************/
 uint32_t CLOCK_HAL_SetFeeToFbiMode(uint32_t baseAddr, uint32_t ircFreq, mcg_internal_ref_clock_select_t ircSelect)
-{ 
+{
     uint8_t fcrDivVal;
     int16_t i;
-    
+
     /* Check MCG is in FEE mode */
     if (CLOCK_HAL_GetMcgMode(baseAddr) != kMcgModeFEE)
     {
         return kMcgErrNotInFeeMode;                 /* return error code */
     }
-  
+
     /* Check that the irc frequency matches the selected IRC */
     if (!(ircSelect))
-    {    
-        if ((ircFreq < kMcgConstant31250) || (ircFreq > kMcgConstant39063)) 
+    {
+        if ((ircFreq < kMcgConstant31250) || (ircFreq > kMcgConstant39063))
         {
             return kMcgErrIrcSlowRange;
-        } 
+        }
     }
     else
     {
-        if ((ircFreq < kMcgConstant3000000) || (ircFreq > kMcgConstant5000000)) 
+        if ((ircFreq < kMcgConstant3000000) || (ircFreq > kMcgConstant5000000))
         {
             return kMcgErrIrcFastRange;
         } /* Fast IRC freq */
     }
-    
+
     /* Select the required IRC */
     CLOCK_HAL_SetInternalRefClkSelMode(baseAddr, ircSelect);
-    
+
     /* Make sure the clock monitor is disabled before switching modes otherwise it will trigger */
     CLOCK_HAL_SetClkMonitor0Cmd(baseAddr, false);
 
     /* Select the IRC as the CLKS mux selection */
-    CLOCK_HAL_SetClksFrdivInternalRefSelect(baseAddr, kMcgClkSelInternal, CLOCK_HAL_GetFllExternalRefDivider(baseAddr), kMcgInternalRefClkSrcSlow); 
- 
+    CLOCK_HAL_SetClksFrdivInternalRefSelect(baseAddr, kMcgClkSelInternal, CLOCK_HAL_GetFllExternalRefDivider(baseAddr), kMcgInternalRefClkSrcSlow);
+
     /* wait until internal reference switches to requested irc. */
     if (ircSelect == kMcgInternalRefClkSelSlow)
     {
@@ -886,7 +886,7 @@ uint32_t CLOCK_HAL_SetFeeToFbiMode(uint32_t baseAddr, uint32_t ircFreq, mcg_inte
       if (CLOCK_HAL_GetInternalRefClkStatMode(baseAddr) != kMcgInternalRefClkStatSlow)
       {
           /* check bit is really clear and return with error if set */
-          return kMcgErrIrcstClearTimeout; 
+          return kMcgErrIrcstClearTimeout;
       }
     }
     else
@@ -901,10 +901,10 @@ uint32_t CLOCK_HAL_SetFeeToFbiMode(uint32_t baseAddr, uint32_t ircFreq, mcg_inte
         if (CLOCK_HAL_GetInternalRefClkStatMode(baseAddr) != kMcgInternalRefClkStatFast)
         {
             /* check bit is really set and return with error if not set */
-            return kMcgErrIrefstSetTimeout1; 
+            return kMcgErrIrefstSetTimeout1;
         }
     }
-  
+
     /* Wait for clock status bits to update */
     for (i = 0 ; i < kMcgConstant2000 ; i++)
     {
@@ -918,7 +918,7 @@ uint32_t CLOCK_HAL_SetFeeToFbiMode(uint32_t baseAddr, uint32_t ircFreq, mcg_inte
     {
         return kMcgErrClkst1; /* check IRC is really selected and return with error if not */
     }
-  
+
     /* wait for Reference clock Status bit to set */
     for (i = 0 ; i < kMcgConstant2000 ; i++)
     {
@@ -931,9 +931,9 @@ uint32_t CLOCK_HAL_SetFeeToFbiMode(uint32_t baseAddr, uint32_t ircFreq, mcg_inte
     if (CLOCK_HAL_GetInternalRefStatMode(baseAddr) != kMcgInternalRefStatInternal)
     {
         /* check bit is really set and return with error if not set */
-        return kMcgErrIrefstSetTimeout; 
+        return kMcgErrIrefstSetTimeout;
     }
-  
+
     /* Now in FBI mode */
     if (ircSelect == kMcgInternalRefClkSelFast)
     {
@@ -951,22 +951,22 @@ uint32_t CLOCK_HAL_SetFeeToFbiMode(uint32_t baseAddr, uint32_t ircFreq, mcg_inte
  *
  * Functon name : CLOCK_HAL_SetFeeToFbeMode
  * Description  : Mode transition FEE to FBE mode
- * This function transitions the MCG from FEE mode to FBE mode. 
+ * This function transitions the MCG from FEE mode to FBE mode.
  *
  * Parameters: crystalVal    - external reference clock frequency value
  *
  * Return value : MCGCLKOUT frequency (Hz) or error code
  *END***********************************************************************************/
 uint32_t CLOCK_HAL_SetFeeToFbeMode(uint32_t baseAddr, uint32_t crystalVal)
-{ 
+{
     uint16_t i;
-  
+
     /* Check MCG is in FEE mode */
     if (CLOCK_HAL_GetMcgMode(baseAddr) != kMcgModeFEE)
     {
         return kMcgErrNotInFeeMode;                 /* return error code */
     }
-  
+
     /* Set CLKS field to 2 to switch CLKS mux to select ext ref clock */
     CLOCK_HAL_SetClkSrcMode(baseAddr, kMcgClkSelExternal);
 
@@ -983,7 +983,7 @@ uint32_t CLOCK_HAL_SetFeeToFbeMode(uint32_t baseAddr, uint32_t crystalVal)
     {
         return kMcgErrClkst2; /* check EXT CLK is really selected and return with error if not */
     }
-    
+
     /* Now in FBE mode */
     return crystalVal;
 }   /* CLOCK_HAL_SetFeeToFbeMode */
@@ -992,7 +992,7 @@ uint32_t CLOCK_HAL_SetFeeToFbeMode(uint32_t baseAddr, uint32_t crystalVal)
  *
  * Functon name : CLOCK_HAL_SetFbiToFeiMode
  * Description  : Mode transition FBI to FEI mode
- * This function transitions the MCG from FBI mode to FEI mode. 
+ * This function transitions the MCG from FBI mode to FEI mode.
  *
  * Parameters: ircFreq       - internal reference clock frequency value (slow)
  *
@@ -1005,7 +1005,7 @@ uint32_t CLOCK_HAL_SetFbiToFeiMode(uint32_t baseAddr, uint32_t ircFreq)
 
     /* check if in FBI mode */
     if (CLOCK_HAL_GetMcgMode(baseAddr) != kMcgModeFBI)
-    {  
+    {
         return kMcgErrNotInFbiMode;                 /* MCG not in correct mode return fail code */
     }
 
@@ -1016,16 +1016,16 @@ uint32_t CLOCK_HAL_SetFbiToFeiMode(uint32_t baseAddr, uint32_t ircFreq)
     }
 
     /* Check resulting FLL frequency */
-    mcgOut = CLOCK_HAL_GetFllFrequency(baseAddr, ircFreq); 
-    if (mcgOut < kMcgErrMax) 
+    mcgOut = CLOCK_HAL_GetFllFrequency(baseAddr, ircFreq);
+    if (mcgOut < kMcgErrMax)
     {
         /* If error code returned, return the code to calling function */
         return mcgOut;
-    } 
-  
+    }
+
     /* Change the CLKS mux to select the FLL output as MCGOUT */
     CLOCK_HAL_SetClksFrdivInternalRefSelect(baseAddr, kMcgClkSelOut, CLOCK_HAL_GetFllExternalRefDivider(baseAddr), kMcgInternalRefClkSrcSlow);
-  
+
     /* wait for Reference clock Status bit to clear */
     for (i = 0 ; i < kMcgConstant2000 ; i++)
     {
@@ -1038,9 +1038,9 @@ uint32_t CLOCK_HAL_SetFbiToFeiMode(uint32_t baseAddr, uint32_t ircFreq)
     if (!CLOCK_HAL_GetInternalRefStatMode(baseAddr))
     {
         /* check bit is really set and return with error if not set */
-        return kMcgErrIrefstSetTimeout; 
+        return kMcgErrIrefstSetTimeout;
     }
-  
+
     /* Wait for clock status bits to show clock source is ext ref clk */
     for (i = 0 ; i < kMcgConstant2000 ; i++)
     {
@@ -1056,14 +1056,14 @@ uint32_t CLOCK_HAL_SetFbiToFeiMode(uint32_t baseAddr, uint32_t ircFreq)
     }
 
     /* Now in FEI mode */
-    return mcgOut;  
+    return mcgOut;
 }   /* CLOCK_HAL_SetFbiToFeiMode */
 
 /*FUNCTION******************************************************************************
  *
  * Functon name : CLOCK_HAL_SetFbiToFeeMode
  * Description  : Mode transition FBI to FEE mode
- * This function transitions the MCG from FBI mode to FEE mode. 
+ * This function transitions the MCG from FBI mode to FEE mode.
  *
  * Parameters: oscselVal  - oscillator selection value
  *                          0 - OSC 0,  1 - RTC 32k, 2 - IRC 48M
@@ -1076,7 +1076,7 @@ uint32_t CLOCK_HAL_SetFbiToFeiMode(uint32_t baseAddr, uint32_t ircFreq)
  *             hgoVal     - selects whether low power or high gain mode is selected
  *                          for the crystal oscillator. This value is only valid when
  *                          oscselVal is 0 and erefsVal is 1.
- *             erefsVal   - selects external clock (=0) or crystal osc (=1) 
+ *             erefsVal   - selects external clock (=0) or crystal osc (=1)
  *
  * Return value : MCGCLKOUT frequency (Hz) or error code
  *END***********************************************************************************/
@@ -1088,16 +1088,16 @@ uint32_t CLOCK_HAL_SetFbiToFeeMode(uint32_t baseAddr, mcg_oscsel_select_t oscsel
 
     /* check if in FBI mode */
     if (CLOCK_HAL_GetMcgMode(baseAddr) != kMcgModeFBI)
-    {  
+    {
         return kMcgErrNotInFbiMode;                 /* MCG not in correct mode return fail code */
     }
-  
+
     /* check external frequency is less than the maximum frequency */
-    if  (crystalVal > kMcgConstant50000000) 
+    if  (crystalVal > kMcgConstant50000000)
     {
         return kMcgErrOscEtalRange;
     }
-  
+
     /* check crystal frequency is within spec. if crystal osc is being used */
     if (oscselVal == kMcgOscselOsc)
     {
@@ -1106,10 +1106,10 @@ uint32_t CLOCK_HAL_SetFbiToFeeMode(uint32_t baseAddr, mcg_oscsel_select_t oscsel
             /* return error if one of the available crystal options is not available */
             if ((crystalVal < kMcgConstant30000) ||
                 ((crystalVal > kMcgConstant40000) && (crystalVal < kMcgConstant3000000)) ||
-                (crystalVal > kMcgConstant32000000)) 
+                (crystalVal > kMcgConstant32000000))
             {
                 return kMcgErrOscXtalRange; /* - crystal frequency outside allowed range */
-            } 
+            }
 
             /* config the hgo settings */
             CLOCK_HAL_SetHighGainOsc0Mode(baseAddr, hgoVal);
@@ -1119,9 +1119,9 @@ uint32_t CLOCK_HAL_SetFbiToFeeMode(uint32_t baseAddr, mcg_oscsel_select_t oscsel
         CLOCK_HAL_SetExternalRefSel0Mode(baseAddr, erefsVal);
     }
 
-    /* 
-     * the RANGE value is determined by the external frequency. Since the RANGE parameter 
-     * affects the FRDIV divide value it still needs to be set correctly even if the 
+    /*
+     * the RANGE value is determined by the external frequency. Since the RANGE parameter
+     * affects the FRDIV divide value it still needs to be set correctly even if the
      * oscillator is not being used
      */
     if (crystalVal <= kMcgConstant40000)
@@ -1141,31 +1141,31 @@ uint32_t CLOCK_HAL_SetFbiToFeeMode(uint32_t baseAddr, mcg_oscsel_select_t oscsel
     /* since the external frequency has already been checked only the maximum frequency for each FRDIV
      * value needs to be compared here.
      */
-    if (crystalVal <= kMcgConstant1250000) 
+    if (crystalVal <= kMcgConstant1250000)
     {
         frDivVal = kMcgConstant0;
     }
-    else if (crystalVal <= kMcgConstant2500000) 
+    else if (crystalVal <= kMcgConstant2500000)
     {
         frDivVal = kMcgConstant1;
     }
-    else if (crystalVal <= kMcgConstant5000000) 
+    else if (crystalVal <= kMcgConstant5000000)
     {
         frDivVal = kMcgConstant2;
     }
-    else if (crystalVal <= kMcgConstant10000000) 
+    else if (crystalVal <= kMcgConstant10000000)
     {
         frDivVal = kMcgConstant3;
     }
-    else if (crystalVal <= kMcgConstant20000000) 
+    else if (crystalVal <= kMcgConstant20000000)
     {
         frDivVal = kMcgConstant4;
     }
-    else 
+    else
     {
         frDivVal = kMcgConstant5;
     }
-   
+
     /* The FLL ref clk divide value depends on FRDIV and the RANGE value */
     if (CLOCK_HAL_GetRange0Mode(baseAddr) > kMcgFreqRangeSelLow)
     {
@@ -1178,15 +1178,15 @@ uint32_t CLOCK_HAL_SetFbiToFeeMode(uint32_t baseAddr, mcg_oscsel_select_t oscsel
 
     /* Check resulting FLL frequency  */
     /* FLL reference frequency calculated from ext ref freq and FRDIV */
-    mcgOut = CLOCK_HAL_GetFllFrequency(baseAddr, fllRefFreq);      
-    if (mcgOut < kMcgErrMax) 
+    mcgOut = CLOCK_HAL_GetFllFrequency(baseAddr, fllRefFreq);
+    if (mcgOut < kMcgErrMax)
     {
         return mcgOut;  /* If error code returned, return the code to calling function */
     }
-  
-    /* 
+
+    /*
      * Select external oscilator and Reference Divider and clear IREFS to start ext osc
-     * If IRCLK is required it must be enabled outside of this driver, existing state will 
+     * If IRCLK is required it must be enabled outside of this driver, existing state will
      * be maintained CLKS=0, FRDIV=frdivVal, IREFS=0
      */
     CLOCK_HAL_SetClksFrdivInternalRefSelect(baseAddr, kMcgClkSelOut, frDivVal, kMcgInternalRefClkSrcExternal);
@@ -1205,7 +1205,7 @@ uint32_t CLOCK_HAL_SetFbiToFeeMode(uint32_t baseAddr, mcg_oscsel_select_t oscsel
         if (!CLOCK_HAL_GetOscInit0(baseAddr))
         {
             /* check bit is really set and return with error if not set */
-            return kMcgErrOscSetTimeout; 
+            return kMcgErrOscSetTimeout;
         }
     }
 
@@ -1218,19 +1218,19 @@ uint32_t CLOCK_HAL_SetFbiToFeeMode(uint32_t baseAddr, mcg_oscsel_select_t oscsel
         }
     }
 
-    if (CLOCK_HAL_GetClkStatMode(baseAddr) != kMcgClkStatFll) 
+    if (CLOCK_HAL_GetClkStatMode(baseAddr) != kMcgClkStatFll)
     {
         return kMcgErrClkst0; // check FLL is really selected and return with error if not
     }
 
-    /* 
-     * Now in FEE  
-     * It is recommended that the clock monitor is enabled when using an external clock as the 
-     * clock source/reference. 
+    /*
+     * Now in FEE
+     * It is recommended that the clock monitor is enabled when using an external clock as the
+     * clock source/reference.
      * It is enabled here but can be removed if this is not required.
      */
     CLOCK_HAL_SetClkMonitor0Cmd(baseAddr, true);
-    
+
     return mcgOut; /* MCGOUT frequency equals FLL frequency */
 }   /* CLOCK_HAL_SetFbiToFeeMode */
 
@@ -1238,7 +1238,7 @@ uint32_t CLOCK_HAL_SetFbiToFeeMode(uint32_t baseAddr, mcg_oscsel_select_t oscsel
  *
  * Functon name : CLOCK_HAL_SetFbiToFbeMode
  * Description  : Mode transition FBI to FBE mode
- * This function transitions the MCG from FBI mode to FBE mode. 
+ * This function transitions the MCG from FBI mode to FBE mode.
  *
  * Parameters: oscselVal  - oscillator selection value
  *                          0 - OSC 0,  1 - RTC 32k, 2 - IRC 48M
@@ -1251,7 +1251,7 @@ uint32_t CLOCK_HAL_SetFbiToFeeMode(uint32_t baseAddr, mcg_oscsel_select_t oscsel
  *             hgoVal     - selects whether low power or high gain mode is selected
  *                          for the crystal oscillator. This value is only valid when
  *                          oscselVal is 0 and erefsVal is 1.
- *             erefsVal   - selects external clock (=0) or crystal osc (=1) 
+ *             erefsVal   - selects external clock (=0) or crystal osc (=1)
  *
  * Return value : MCGCLKOUT frequency (Hz) or error code
  *END***********************************************************************************/
@@ -1262,16 +1262,16 @@ uint32_t CLOCK_HAL_SetFbiToFbeMode(uint32_t baseAddr, mcg_oscsel_select_t oscsel
 
     /* check if in FBI mode */
     if (CLOCK_HAL_GetMcgMode(baseAddr) != kMcgModeFBI)
-    {  
+    {
         return kMcgErrNotInFbiMode;                 /* MCG not in correct mode return fail code */
     }
-  
+
     /* check external frequency is less than the maximum frequency */
-    if  (crystalVal > kMcgConstant50000000) 
+    if  (crystalVal > kMcgConstant50000000)
     {
         return kMcgErrOscEtalRange;
     }
- 
+
     /* check crystal frequency is within spec. if crystal osc is being used */
     if (oscselVal == kMcgOscselOsc)
     {
@@ -1280,10 +1280,10 @@ uint32_t CLOCK_HAL_SetFbiToFbeMode(uint32_t baseAddr, mcg_oscsel_select_t oscsel
             /* return error if one of the available crystal options is not available */
             if ((crystalVal < kMcgConstant30000) ||
                 ((crystalVal > kMcgConstant40000) && (crystalVal < kMcgConstant3000000)) ||
-                (crystalVal > kMcgConstant32000000)) 
+                (crystalVal > kMcgConstant32000000))
             {
                 return kMcgErrOscXtalRange; /* - crystal frequency outside allowed range */
-            } 
+            }
 
             /* config the hgo settings */
             CLOCK_HAL_SetHighGainOsc0Mode(baseAddr, hgoVal);
@@ -1293,9 +1293,9 @@ uint32_t CLOCK_HAL_SetFbiToFbeMode(uint32_t baseAddr, mcg_oscsel_select_t oscsel
         CLOCK_HAL_SetExternalRefSel0Mode(baseAddr, erefsVal);
     }
 
-    /* 
-     * the RANGE value is determined by the external frequency. Since the RANGE parameter 
-     * affects the FRDIV divide value it still needs to be set correctly even if the 
+    /*
+     * the RANGE value is determined by the external frequency. Since the RANGE parameter
+     * affects the FRDIV divide value it still needs to be set correctly even if the
      * oscillator is not being used
      */
     if (crystalVal <= kMcgConstant40000)
@@ -1315,27 +1315,27 @@ uint32_t CLOCK_HAL_SetFbiToFbeMode(uint32_t baseAddr, mcg_oscsel_select_t oscsel
     /* since the external frequency has already been checked only the maximum frequency for each FRDIV
      * value needs to be compared here.
      */
-    if (crystalVal <= kMcgConstant1250000) 
+    if (crystalVal <= kMcgConstant1250000)
     {
         frDivVal = kMcgConstant0;
     }
-    else if (crystalVal <= kMcgConstant2500000) 
+    else if (crystalVal <= kMcgConstant2500000)
     {
         frDivVal = kMcgConstant1;
     }
-    else if (crystalVal <= kMcgConstant5000000) 
+    else if (crystalVal <= kMcgConstant5000000)
     {
         frDivVal = kMcgConstant2;
     }
-    else if (crystalVal <= kMcgConstant10000000) 
+    else if (crystalVal <= kMcgConstant10000000)
     {
         frDivVal = kMcgConstant3;
     }
-    else if (crystalVal <= kMcgConstant20000000) 
+    else if (crystalVal <= kMcgConstant20000000)
     {
         frDivVal = kMcgConstant4;
     }
-    else 
+    else
     {
         frDivVal = kMcgConstant5;
     }
@@ -1364,7 +1364,7 @@ uint32_t CLOCK_HAL_SetFbiToFbeMode(uint32_t baseAddr, mcg_oscsel_select_t oscsel
         if (!CLOCK_HAL_GetOscInit0(baseAddr))
         {
             /* check bit is really set and return with error if not set */
-            return kMcgErrOscSetTimeout; 
+            return kMcgErrOscSetTimeout;
         }
     }
 
@@ -1380,7 +1380,7 @@ uint32_t CLOCK_HAL_SetFbiToFbeMode(uint32_t baseAddr, mcg_oscsel_select_t oscsel
     if (CLOCK_HAL_GetInternalRefStatMode(baseAddr))
     {
         /* check bit is really clear and return with error if not set */
-        return kMcgErrIrefstClearTimeOut; 
+        return kMcgErrIrefstClearTimeOut;
     }
 
     /* Wait for clock status bits to show clock source is ext ref clk */
@@ -1397,13 +1397,13 @@ uint32_t CLOCK_HAL_SetFbiToFbeMode(uint32_t baseAddr, mcg_oscsel_select_t oscsel
         return kMcgErrClkst2; /* check EXT CLK is really selected and return with error if not */
     }
 
-    /* 
-     * Now in FBE  
+    /*
+     * Now in FBE
      * It is recommended that the clock monitor is enabled when using an external clock as the clock source/reference.
      * It is enabled here but can be removed if this is not required.
      */
     CLOCK_HAL_SetClkMonitor0Cmd(baseAddr, true);
-    
+
     return crystalVal; /* MCGOUT frequency equals external clock frequency */
 }   /* CLOCK_HAL_SetFbiToFbeMode */
 
@@ -1412,7 +1412,7 @@ uint32_t CLOCK_HAL_SetFbiToFbeMode(uint32_t baseAddr, mcg_oscsel_select_t oscsel
  * Functon name : CLOCK_HAL_SetFbiToBlpiMode
  * Description  : Mode transition FBI to BLPI mode
  * This function transitions the MCG from FBI mode to BLPI mode.This is
- * achieved by setting the MCG_C2[LP] bit. 
+ * achieved by setting the MCG_C2[LP] bit.
  *
  * Parameters: ircFreq       - internal reference clock frequency value
  *             ircSelect     - slow or fast clock selection
@@ -1423,16 +1423,16 @@ uint32_t CLOCK_HAL_SetFbiToFbeMode(uint32_t baseAddr, mcg_oscsel_select_t oscsel
 uint32_t CLOCK_HAL_SetFbiToBlpiMode(uint32_t baseAddr, uint32_t ircFreq, mcg_internal_ref_clock_select_t ircSelect)
 {
     uint8_t fcrDivVal;
-  
+
     /* check if in FBI mode */
     if (CLOCK_HAL_GetMcgMode(baseAddr) != kMcgModeFBI)
-    {  
+    {
         return kMcgErrNotInFbiMode;                 /* MCG not in correct mode return fail code */
     }
 
     /* Set LP bit to disable the FLL and enter BLPI */
     CLOCK_HAL_SetLowPowerMode(baseAddr, kMcgLowPowerSelLowPower);
-  
+
     /* Now in BLPI */
     if (ircSelect == kMcgInternalRefClkSelFast)
     {
@@ -1442,7 +1442,7 @@ uint32_t CLOCK_HAL_SetFbiToBlpiMode(uint32_t baseAddr, uint32_t ircFreq, mcg_int
     else
     {
         return ircFreq; /* MCGOUT frequency equals slow IRC frequency */
-    }   
+    }
 }   /* CLOCK_HAL_SetFbiToBlpiMode */
 
 /*FUNCTION******************************************************************************
@@ -1450,7 +1450,7 @@ uint32_t CLOCK_HAL_SetFbiToBlpiMode(uint32_t baseAddr, uint32_t ircFreq, mcg_int
  * Functon name : CLOCK_HAL_SetBlpiToFbiMode
  * Description  : Mode transition BLPI to FBI mode
  * This function transitions the MCG from BLPI mode to FBI mode.This is
- * achieved by clearing the MCG_C2[LP] bit. 
+ * achieved by clearing the MCG_C2[LP] bit.
  *
  * Parameters: ircFreq       - internal reference clock frequency value
  *             ircSelect     - slow or fast clock selection
@@ -1470,7 +1470,7 @@ uint32_t CLOCK_HAL_SetBlpiToFbiMode(uint32_t baseAddr, uint32_t ircFreq, uint8_t
 
     /* Clear LP bit to enable the FLL and enter FBI mode */
     CLOCK_HAL_SetLowPowerMode(baseAddr, kMcgLowPowerSelNormal);
-  
+
     /* Now in FBI mode */
     if (ircSelect)
     {
@@ -1487,7 +1487,7 @@ uint32_t CLOCK_HAL_SetBlpiToFbiMode(uint32_t baseAddr, uint32_t ircFreq, uint8_t
  *
  * Functon name : CLOCK_HAL_SetFbeToFeeMode
  * Description  : Mode transition FBE to FEE mode
- * This function transitions the MCG from FBE mode to FEE mode. 
+ * This function transitions the MCG from FBE mode to FEE mode.
  *
  * Parameters: crystalVal    - external reference clock frequency value
  *
@@ -1503,7 +1503,7 @@ uint32_t CLOCK_HAL_SetFbeToFeeMode(uint32_t baseAddr, uint32_t crystalVal)
     {
         return kMcgErrNotInFbeMode;                 /* return error code */
     }
-  
+
     /* get curretn frdiv value */
     frDivVal = CLOCK_HAL_GetFllExternalRefDivider(baseAddr);
 
@@ -1519,8 +1519,8 @@ uint32_t CLOCK_HAL_SetFbeToFeeMode(uint32_t baseAddr, uint32_t crystalVal)
 
     /* Check resulting FLL frequency  */
     /* FLL reference frequency calculated from ext ref freq and FRDIV */
-    mcgOut = CLOCK_HAL_GetFllFrequency(baseAddr, fllRefFreq);      
-    if (mcgOut < kMcgErrMax) 
+    mcgOut = CLOCK_HAL_GetFllFrequency(baseAddr, fllRefFreq);
+    if (mcgOut < kMcgErrMax)
     {
         return mcgOut;  /* If error code returned, return the code to calling function */
     }
@@ -1537,11 +1537,11 @@ uint32_t CLOCK_HAL_SetFbeToFeeMode(uint32_t baseAddr, uint32_t crystalVal)
         }
     }
 
-    if (CLOCK_HAL_GetClkStatMode(baseAddr) != kMcgClkStatFll) 
+    if (CLOCK_HAL_GetClkStatMode(baseAddr) != kMcgClkStatFll)
     {
         return kMcgErrClkst0; // check FLL is really selected and return with error if not
     }
-  
+
     /* Now in FEE mode */
     return mcgOut;
 }   /* CLOCK_HAL_SetFbeToFeeMode */
@@ -1550,7 +1550,7 @@ uint32_t CLOCK_HAL_SetFbeToFeeMode(uint32_t baseAddr, uint32_t crystalVal)
  *
  * Functon name : CLOCK_HAL_SetFbeToFeiMode
  * Description  : Mode transition FBE to FEI mode
- * This function transitions the MCG from FBE mode to FEI mode. 
+ * This function transitions the MCG from FBE mode to FEI mode.
  *
  * Parameters: ircFreq       - internal reference clock frequency value (slow)
  *
@@ -1560,7 +1560,7 @@ uint32_t CLOCK_HAL_SetFbeToFeiMode(uint32_t baseAddr, uint32_t ircFreq)
 {
     uint16_t i;
     uint32_t mcgOut;
-  
+
     /* Check MCG is in FBE mode */
     if (CLOCK_HAL_GetMcgMode(baseAddr) != kMcgModeFBE)
     {
@@ -1572,24 +1572,24 @@ uint32_t CLOCK_HAL_SetFbeToFeiMode(uint32_t baseAddr, uint32_t ircFreq)
     {
         return kMcgErrIrcSlowRange;
     }
-  
+
     /* Check resulting FLL frequency */
-    mcgOut = CLOCK_HAL_GetFllFrequency(baseAddr, ircFreq); 
-    if (mcgOut < kMcgErrMax) 
+    mcgOut = CLOCK_HAL_GetFllFrequency(baseAddr, ircFreq);
+    if (mcgOut < kMcgErrMax)
     {
         /* If error code returned, return the code to calling function */
         return mcgOut;
-    } 
+    }
 
-    /* 
-     * Ensure clock monitor is disabled before switching to FEI otherwise 
+    /*
+     * Ensure clock monitor is disabled before switching to FEI otherwise
      * a loss of clock will trigger. This assumes OSC0 is used as the external clock source.
      */
     CLOCK_HAL_SetClkMonitor0Cmd(baseAddr, false);
-  
+
     // Move to FEI by setting CLKS to 0 and enabling the slow IRC as the FLL reference clock
     CLOCK_HAL_SetClksFrdivInternalRefSelect(baseAddr, kMcgClkSelOut, CLOCK_HAL_GetFllExternalRefDivider(baseAddr), kMcgInternalRefClkSrcSlow);
-  
+
     /* wait for Reference clock to switch to internal reference */
     for (i = 0 ; i < kMcgConstant2000 ; i++)
     {
@@ -1602,9 +1602,9 @@ uint32_t CLOCK_HAL_SetFbeToFeiMode(uint32_t baseAddr, uint32_t ircFreq)
     if (CLOCK_HAL_GetInternalRefStatMode(baseAddr) != kMcgInternalRefStatInternal)
     {
         /* check bit is really set and return with error if not set */
-        return kMcgErrIrefstSetTimeout; 
+        return kMcgErrIrefstSetTimeout;
     }
-  
+
     /* Wait for clock status bits to show clock source is FLL output */
     for (i = 0 ; i < kMcgConstant2000 ; i++)
     {
@@ -1630,7 +1630,7 @@ uint32_t CLOCK_HAL_SetFbeToFeiMode(uint32_t baseAddr, uint32_t ircFreq)
  *
  * Functon name : CLOCK_HAL_SetFbeToFbiMode
  * Description  : Mode transition FBE to FBI mode
- * This function transitions the MCG from FBE mode to FBI mode. 
+ * This function transitions the MCG from FBE mode to FBI mode.
  *
  * Parameters: ircFreq       - internal reference clock frequency value
  *             ircSelect     - slow or fast clock selection
@@ -1642,7 +1642,7 @@ uint32_t CLOCK_HAL_SetFbeToFbiMode(uint32_t baseAddr, uint32_t ircFreq, mcg_inte
 {
   uint8_t fcrDivVal;
   uint16_t i;
-  
+
     /* Check MCG is in FBE mode */
     if (CLOCK_HAL_GetMcgMode(baseAddr) != kMcgModeFBE)
     {
@@ -1651,29 +1651,29 @@ uint32_t CLOCK_HAL_SetFbeToFbiMode(uint32_t baseAddr, uint32_t ircFreq, mcg_inte
 
     /* Check that the irc frequency matches the selected IRC */
     if (!(ircSelect))
-    {    
-        if ((ircFreq < kMcgConstant31250) || (ircFreq > kMcgConstant39063)) 
+    {
+        if ((ircFreq < kMcgConstant31250) || (ircFreq > kMcgConstant39063))
         {
             return kMcgErrIrcSlowRange;
-        } 
+        }
     }
     else
     {
-        if ((ircFreq < kMcgConstant3000000) || (ircFreq > kMcgConstant5000000)) 
+        if ((ircFreq < kMcgConstant3000000) || (ircFreq > kMcgConstant5000000))
         {
             return kMcgErrIrcFastRange;
         } /* Fast IRC freq */
     }
-  
+
     /* Select the required IRC */
     CLOCK_HAL_SetInternalRefClkSelMode(baseAddr, ircSelect);
-  
+
     /* Make sure the clock monitor is disabled before switching modes otherwise it will trigger */
     CLOCK_HAL_SetClkMonitor0Cmd(baseAddr, false);
-  
+
     /* Select the IRC as the CLKS mux selection */
-    CLOCK_HAL_SetClksFrdivInternalRefSelect(baseAddr, kMcgClkSelInternal, CLOCK_HAL_GetFllExternalRefDivider(baseAddr), kMcgInternalRefClkSrcSlow); 
-  
+    CLOCK_HAL_SetClksFrdivInternalRefSelect(baseAddr, kMcgClkSelInternal, CLOCK_HAL_GetFllExternalRefDivider(baseAddr), kMcgInternalRefClkSrcSlow);
+
     /* wait until internal reference switches to requested irc. */
     if (ircSelect == kMcgInternalRefClkSelSlow)
     {
@@ -1687,7 +1687,7 @@ uint32_t CLOCK_HAL_SetFbeToFbiMode(uint32_t baseAddr, uint32_t ircFreq, mcg_inte
       if (CLOCK_HAL_GetInternalRefClkStatMode(baseAddr) != kMcgInternalRefClkStatSlow)
       {
           /* check bit is really clear and return with error if set */
-          return kMcgErrIrcstClearTimeout; 
+          return kMcgErrIrcstClearTimeout;
       }
     }
     else
@@ -1702,10 +1702,10 @@ uint32_t CLOCK_HAL_SetFbeToFbiMode(uint32_t baseAddr, uint32_t ircFreq, mcg_inte
         if (CLOCK_HAL_GetInternalRefClkStatMode(baseAddr) != kMcgInternalRefClkStatFast)
         {
             /* check bit is really set and return with error if not set */
-            return kMcgErrIrefstSetTimeout1; 
+            return kMcgErrIrefstSetTimeout1;
         }
     }
- 
+
     /* Wait for clock status bits to update */
     for (i = 0 ; i < kMcgConstant2000 ; i++)
     {
@@ -1719,7 +1719,7 @@ uint32_t CLOCK_HAL_SetFbeToFbiMode(uint32_t baseAddr, uint32_t ircFreq, mcg_inte
     {
         return kMcgErrClkst1; /* check IRC is really selected and return with error if not */
     }
- 
+
     /* wait for Reference clock Status bit to set */
     for (i = 0 ; i < kMcgConstant2000 ; i++)
     {
@@ -1732,9 +1732,9 @@ uint32_t CLOCK_HAL_SetFbeToFbiMode(uint32_t baseAddr, uint32_t ircFreq, mcg_inte
     if (CLOCK_HAL_GetInternalRefStatMode(baseAddr) != kMcgInternalRefStatInternal)
     {
         /* check bit is really set and return with error if not set */
-        return kMcgErrIrefstSetTimeout; 
+        return kMcgErrIrefstSetTimeout;
     }
-  
+
     /* Now in FBI mode */
     if (ircSelect == kMcgInternalRefClkSelFast)
     {
@@ -1748,38 +1748,38 @@ uint32_t CLOCK_HAL_SetFbeToFbiMode(uint32_t baseAddr, uint32_t ircFreq, mcg_inte
     }
 }   /* CLOCK_HAL_SetFbeToFbiMode */
 
-#if FSL_FEATURE_MCG_HAS_PLL  
+#if FSL_FEATURE_MCG_HAS_PLL
 
 /*FUNCTION******************************************************************************
  *
  * Functon name : CLOCK_HAL_SetFbeToPbeMode
  * Description  : Mode transition FBE to PBE mode
- * This function transitions the MCG from FBE mode to PBE mode. 
- * The function requires the desired OSC and PLL be passed in to it for compatibility 
+ * This function transitions the MCG from FBE mode to PBE mode.
+ * The function requires the desired OSC and PLL be passed in to it for compatibility
  * with the future support of OSC/PLL selection
  * (This function presently only supports OSC0 as PLL source)
  * Parameters: crystalVal   - external clock frequency in Hz
  *             pllcsSelect  - 0 to select PLL0, non-zero to select PLL1.
- *             prdivVal     - value to divide the external clock source by to create 
+ *             prdivVal     - value to divide the external clock source by to create
  *                            the desired PLL reference clock frequency
  *             vdivVal      - value to multiply the PLL reference clock frequency by
  *
  * Return value : MCGCLKOUT frequency (Hz) or error code
  *END***********************************************************************************/
-uint32_t CLOCK_HAL_SetFbeToPbeMode(uint32_t baseAddr, uint32_t crystalVal, mcg_pll_clk_select_t pllcsSelect, 
+uint32_t CLOCK_HAL_SetFbeToPbeMode(uint32_t baseAddr, uint32_t crystalVal, mcg_pll_clk_select_t pllcsSelect,
                            uint8_t prdivVal, uint8_t vdivVal)
 {
     uint16_t i;
     uint32_t pllFreq;
-  
+
     /* Check MCG is in FBE mode */
     if (CLOCK_HAL_GetMcgMode(baseAddr) != kMcgModeFBE)
     {
         return kMcgErrNotInFbeMode;                 /* return error code */
     }
 
-    /* 
-     * As the external frequency (osc0) has already been checked when FBE mode was enterred 
+    /*
+     * As the external frequency (osc0) has already been checked when FBE mode was enterred
      * it is not checked here.
      */
 
@@ -1792,14 +1792,14 @@ uint32_t CLOCK_HAL_SetFbeToPbeMode(uint32_t baseAddr, uint32_t crystalVal, mcg_p
     if ((vdivVal < FSL_FEATURE_MCG_PLL_VDIV_BASE) || (vdivVal > (FSL_FEATURE_MCG_PLL_VDIV_BASE + 31)))
     {
         return kMcgErrPllVdivRange;
-    } 
-  
+    }
+
     /* Check PLL reference clock frequency is within spec. */
     if (((crystalVal / prdivVal) < kMcgConstant8000000) || ((crystalVal / prdivVal) > kMcgConstant32000000))
     {
         return kMcgErrPllRefClkRange;
     }
-       
+
     /* Check PLL output frequency is within spec. */
     pllFreq = (crystalVal / prdivVal) * vdivVal;
     if ((pllFreq < kMcgConstant180000000) || (pllFreq > kMcgConstant360000000))
@@ -1812,20 +1812,22 @@ uint32_t CLOCK_HAL_SetFbeToPbeMode(uint32_t baseAddr, uint32_t crystalVal, mcg_p
     CLOCK_HAL_SetPllcs(pllcsSelect);
 
     if (pllcsSelect == kMcgPllcsSelectPll0)
+#else
+    (void) pllcsSelect;
 #endif
     {
-        /* 
+        /*
          * Configure MCG_C5
-         * If the PLL is to run in STOP mode then the PLLSTEN bit needs 
-         * to be OR'ed in here or in user code.       
+         * If the PLL is to run in STOP mode then the PLLSTEN bit needs
+         * to be OR'ed in here or in user code.
          */
 
         CLOCK_HAL_SetPllExternalRefDivider0(baseAddr, prdivVal - 1);
 
-        /* 
+        /*
          * Configure MCG_C6
-         * The PLLS bit is set to enable the PLL, MCGOUT still sourced from ext ref clk 
-         * The clock monitor is not enabled here as it has likely been enabled previously and 
+         * The PLLS bit is set to enable the PLL, MCGOUT still sourced from ext ref clk
+         * The clock monitor is not enabled here as it has likely been enabled previously and
          * so the value of CME is not altered here.
          * The loss of lock interrupt can be enabled by seperate OR'ing in the LOLIE bit in MCG_C6
          */
@@ -1867,7 +1869,7 @@ uint32_t CLOCK_HAL_SetFbeToPbeMode(uint32_t baseAddr, uint32_t crystalVal, mcg_p
             return kMcgErrPllLockBit;
         }
 
-#if FSL_FEATURE_MCG_USE_PLLREFSEL        
+#if FSL_FEATURE_MCG_USE_PLLREFSEL
         /* wait for PLLCST status bit to clear */
         for (i = 0 ; i < kMcgConstant2000 ; i++)
         {
@@ -1884,30 +1886,30 @@ uint32_t CLOCK_HAL_SetFbeToPbeMode(uint32_t baseAddr, uint32_t crystalVal, mcg_p
             /* return with error if not set */
             return kMcgErrPllcst;
         }
-#endif        
+#endif
     }
 #if FSL_FEATURE_MCG_HAS_PLL1
     else
     {
         /*
          * Configure MCG_C11
-         * If the PLL is to run in STOP mode 
-         * then the PLLSTEN bit needs to be OR'ed in here or in user code.       
+         * If the PLL is to run in STOP mode
+         * then the PLLSTEN bit needs to be OR'ed in here or in user code.
          */
         CLOCK_HAL_SetPrdiv1(prdivVal - 1);
 
-        /* 
+        /*
          * Configure MCG_C12
-         * The PLLS bit is set to enable the PLL, MCGOUT still sourced from ext ref clk 
+         * The PLLS bit is set to enable the PLL, MCGOUT still sourced from ext ref clk
          * The clock monitor is not enabled here as it has likely been enabled previously
          * and so the value of CME is not altered here.
-         * The loss of lock interrupt can be enabled by seperate OR'ing in the LOLIE bit 
+         * The loss of lock interrupt can be enabled by seperate OR'ing in the LOLIE bit
          * in MCG_C12
          */
 
         CLOCK_HAL_SetVdiv1(vdivVal - FSL_FEATURE_MCG_PLL_VDIV_BASE);
         CLOCK_HAL_SetPllSelMode(kMcgPllSelPllClkSel);
-  
+
         // wait for PLLST status bit to set
         for (i = 0 ; i < kMcgConstant2000 ; i++)
         {
@@ -1941,7 +1943,7 @@ uint32_t CLOCK_HAL_SetFbeToPbeMode(uint32_t baseAddr, uint32_t crystalVal, mcg_p
             /* return with error if not set */
             return kMcgErrPllLockBit;
         }
-   
+
         /* wait for PLLCST status bit to clear */
         for (i = 0 ; i < kMcgConstant2000 ; i++)
         {
@@ -1972,7 +1974,7 @@ uint32_t CLOCK_HAL_SetFbeToPbeMode(uint32_t baseAddr, uint32_t crystalVal, mcg_p
  *
  * Functon name : CLOCK_HAL_SetFbeToBlpeMode
  * Description  : Mode transition FBE to BLPE mode
- * This function transitions the MCG from FBE mode to BLPE mode. 
+ * This function transitions the MCG from FBE mode to BLPE mode.
  *
  * Parameters: crystalVal   - external clock frequency in Hz
  *
@@ -1985,23 +1987,23 @@ uint32_t CLOCK_HAL_SetFbeToBlpeMode(uint32_t baseAddr, uint32_t crystalVal)
     {
         return kMcgErrNotInFbeMode;                 /* return error code */
     }
- 
+
     /* To move from FBE to BLPE the LP bit must be set */
     CLOCK_HAL_SetLowPowerMode(baseAddr, kMcgLowPowerSelLowPower);
- 
+
     /* now in FBE mode */
 
     /* MCGOUT frequency equals external clock frequency */
     return crystalVal;
 }   /* CLOCK_HAL_SetFbeToBlpeMode */
 
-#if FSL_FEATURE_MCG_HAS_PLL  
+#if FSL_FEATURE_MCG_HAS_PLL
 
 /*FUNCTION******************************************************************************
  *
  * Functon name : CLOCK_HAL_SetPbeToFbeMode
  * Description  : Mode transition PBE to FBE mode
- * This function transitions the MCG from PBE mode to FBE mode. 
+ * This function transitions the MCG from PBE mode to FBE mode.
  *
  * Parameters: crystalVal   - external clock frequency in Hz
  *
@@ -2010,20 +2012,20 @@ uint32_t CLOCK_HAL_SetFbeToBlpeMode(uint32_t baseAddr, uint32_t crystalVal)
 uint32_t CLOCK_HAL_SetPbeToFbeMode(uint32_t baseAddr, uint32_t crystalVal)
 {
     int16_t i;
-    
+
     /* Check MCG is in PBE mode */
     if (CLOCK_HAL_GetMcgMode(baseAddr) != kMcgModePBE)
     {
         return kMcgErrNotInPbeMode;                 /* return error code */
     }
 
-    /* 
-     * As we are running from the ext clock, by default the external clock settings are valid 
-     * To move to FBE from PBE simply requires the switching of the PLLS mux to disable the PLL  
+    /*
+     * As we are running from the ext clock, by default the external clock settings are valid
+     * To move to FBE from PBE simply requires the switching of the PLLS mux to disable the PLL
      */
-    
+
     CLOCK_HAL_SetPllSelMode(baseAddr, kMcgPllSelFll);
-  
+
     /* wait for PLLST status bit to set */
     for (i = 0 ; i < kMcgConstant2000 ; i++)
     {
@@ -2038,26 +2040,26 @@ uint32_t CLOCK_HAL_SetPbeToFbeMode(uint32_t baseAddr, uint32_t crystalVal)
     if (CLOCK_HAL_GetPllStatMode(baseAddr) != kMcgPllStatFll)
     {
         /*  return with error if not clear */
-        return kMcgErrPllstClearTimeout; 
+        return kMcgErrPllstClearTimeout;
     }
 
     /* Now in FBE mode   */
 
     /* MCGOUT frequency equals external clock frequency  */
-    return crystalVal; 
+    return crystalVal;
 }   /* CLOCK_HAL_SetPbeToFbeMode */
 
 /*FUNCTION******************************************************************************
  *
  * Functon name : CLOCK_HAL_SetPbeToPeeMode
  * Description  : Mode transition PBE to PEE mode
- * This function transitions the MCG from PBE mode to PEE mode. 
+ * This function transitions the MCG from PBE mode to PEE mode.
  *
  * Parameters: crystalVal   - external clock frequency in Hz
  *             pllcsSelect  - PLLCS select setting
  *                            mcg_pll_clk_select_t is defined in fsl_mcg_hal.h
- *                            0: kMcgPllcsSelectPll0  PLL0 output clock is selected 
- *                            1: kMcgPllcsSelectPll1  PLL1 output clock is selected 
+ *                            0: kMcgPllcsSelectPll0  PLL0 output clock is selected
+ *                            1: kMcgPllcsSelectPll1  PLL1 output clock is selected
  *
  * Return value : MCGCLKOUT frequency (Hz) or error code
  *END***********************************************************************************/
@@ -2066,6 +2068,7 @@ uint32_t CLOCK_HAL_SetPbeToPeeMode(uint32_t baseAddr, uint32_t crystalVal, mcg_p
     uint8_t prDiv, vDiv;
     uint16_t i;
     uint32_t mcgOut;
+    (void) pllcsSelect;
 
     /* Check MCG is in PBE mode */
     if (CLOCK_HAL_GetMcgMode(baseAddr) != kMcgModePBE)
@@ -2158,7 +2161,7 @@ uint32_t CLOCK_HAL_SetPbeToPeeMode(uint32_t baseAddr, uint32_t crystalVal, mcg_p
  *
  * Functon name : CLOCK_HAL_SetPbeToBlpeMode
  * Description  : Mode transition PBE to BLPE mode
- * This function transitions the MCG from PBE mode to BLPE mode. 
+ * This function transitions the MCG from PBE mode to BLPE mode.
  *
  * Parameters: crystalVal   - external clock frequency in Hz
  *
@@ -2171,19 +2174,19 @@ uint32_t CLOCK_HAL_SetPbeToBlpeMode(uint32_t baseAddr, uint32_t crystalVal)
     {
         return kMcgErrNotInPbeMode;                 /* return error code */
     }
-  
+
     /* To enter BLPE mode the LP bit must be set, disabling the PLL */
     CLOCK_HAL_SetLowPowerMode(baseAddr, kMcgLowPowerSelLowPower);
-  
+
     /* Now in BLPE mode */
-    return crystalVal;  
+    return crystalVal;
 }   /* CLOCK_HAL_SetPbeToBlpeMode */
 
 /*FUNCTION******************************************************************************
  *
  * Functon name : CLOCK_HAL_SetPeeToPbeMode
  * Description  : Mode transition PEE to PBE mode
- * This function transitions the MCG from PEE mode to PBE mode. 
+ * This function transitions the MCG from PEE mode to PBE mode.
  *
  * Parameters: crystalVal   - external clock frequency in Hz
  *
@@ -2192,20 +2195,20 @@ uint32_t CLOCK_HAL_SetPbeToBlpeMode(uint32_t baseAddr, uint32_t crystalVal)
 uint32_t CLOCK_HAL_SetPeeToPbeMode(uint32_t baseAddr, uint32_t crystalVal)
 {
     uint16_t i;
-  
+
     /* Check MCG is in PEE mode */
     if (CLOCK_HAL_GetMcgMode(baseAddr) != kMcgModePEE)
     {
         return kMcgErrNotInPeeMode;                 /* return error code */
-    } 
-  
+    }
+
     /*
-     * As we are running from the PLL by default the PLL and external clock settings are valid 
-     * To move to PBE from PEE simply requires the switching of the CLKS mux to select the ext clock  
+     * As we are running from the PLL by default the PLL and external clock settings are valid
+     * To move to PBE from PEE simply requires the switching of the CLKS mux to select the ext clock
       */
     /* As CLKS is already 0 the CLKS value can simply be OR'ed into the register  */
     CLOCK_HAL_SetClkSrcMode(baseAddr, kMcgClkSelExternal);
-  
+
     /* Wait for clock status bits to update */
     for (i = 0 ; i < kMcgConstant2000 ; i++)
     {
@@ -2228,13 +2231,13 @@ uint32_t CLOCK_HAL_SetPeeToPbeMode(uint32_t baseAddr, uint32_t crystalVal)
  *
  * Functon name : CLOCK_HAL_SetBlpeToPbeMode
  * Description  : Mode transition BLPE to PBE mode
- * This function transitions the MCG from BLPE mode to PBE mode. 
- * The function requires the desired OSC and PLL be passed in to it for compatibility 
+ * This function transitions the MCG from BLPE mode to PBE mode.
+ * The function requires the desired OSC and PLL be passed in to it for compatibility
  * with the future support of OSC/PLL selection
  * (This function presently only supports OSC0 as PLL source)
  * Parameters: crystalVal   - external clock frequency in Hz
  *             pllcsSelect  - 0 to select PLL0, non-zero to select PLL1.
- *             prdivVal     - value to divide the external clock source by to create 
+ *             prdivVal     - value to divide the external clock source by to create
  *                            the desired PLL reference clock frequency
  *             vdivVal      - value to multiply the PLL reference clock frequency by
  *
@@ -2250,9 +2253,9 @@ uint32_t CLOCK_HAL_SetBlpeToPbeMode(uint32_t baseAddr, uint32_t crystalVal, mcg_
     {
         return kMcgErrNotInBlpeMode;                                                       /* return error code */
     }
-  
-    /* 
-     * As the external frequency (osc0) has already been checked when FBE mode was enterred 
+
+    /*
+     * As the external frequency (osc0) has already been checked when FBE mode was enterred
      * it is not checked here.
      */
 
@@ -2265,14 +2268,14 @@ uint32_t CLOCK_HAL_SetBlpeToPbeMode(uint32_t baseAddr, uint32_t crystalVal, mcg_
     if ((vdivVal < FSL_FEATURE_MCG_PLL_VDIV_BASE) || (vdivVal > (FSL_FEATURE_MCG_PLL_VDIV_BASE + 31)))
     {
         return kMcgErrPllVdivRange;
-    } 
-  
+    }
+
     /* Check PLL reference clock frequency is within spec. */
     if (((crystalVal / prdivVal) < kMcgConstant8000000) || ((crystalVal / prdivVal) > kMcgConstant32000000))
     {
         return kMcgErrPllRefClkRange;
     }
-       
+
     /* Check PLL output frequency is within spec. */
     pllFreq = (crystalVal / prdivVal) * vdivVal;
     if ((pllFreq < kMcgConstant180000000) || (pllFreq > kMcgConstant360000000))
@@ -2285,20 +2288,22 @@ uint32_t CLOCK_HAL_SetBlpeToPbeMode(uint32_t baseAddr, uint32_t crystalVal, mcg_
     CLOCK_HAL_SetPllcs(pllcsSelect);
 
     if (pllcsSelect == kMcgPllcsSelectPll0)
+#else
+    (void) pllcsSelect;
 #endif
     {
-        /* 
+        /*
          * Configure MCG_C5
-         * If the PLL is to run in STOP mode then the PLLSTEN bit needs 
-         * to be OR'ed in here or in user code.       
+         * If the PLL is to run in STOP mode then the PLLSTEN bit needs
+         * to be OR'ed in here or in user code.
          */
 
         CLOCK_HAL_SetPllExternalRefDivider0(baseAddr, prdivVal - 1);
 
-        /* 
+        /*
          * Configure MCG_C6
-         * The PLLS bit is set to enable the PLL, MCGOUT still sourced from ext ref clk 
-         * The clock monitor is not enabled here as it has likely been enabled previously and 
+         * The PLLS bit is set to enable the PLL, MCGOUT still sourced from ext ref clk
+         * The clock monitor is not enabled here as it has likely been enabled previously and
          * so the value of CME is not altered here.
          * The loss of lock interrupt can be enabled by seperate OR'ing in the LOLIE bit in MCG_C6
          */
@@ -2342,7 +2347,7 @@ uint32_t CLOCK_HAL_SetBlpeToPbeMode(uint32_t baseAddr, uint32_t crystalVal, mcg_
             /* return with error if not set */
             return kMcgErrPllLockBit;
         }
-    
+
 #if FSL_FEATURE_MCG_USE_PLLREFSEL
         /* wait for PLLCST status bit to clear */
         for (i = 0 ; i < kMcgConstant2000 ; i++)
@@ -2360,24 +2365,24 @@ uint32_t CLOCK_HAL_SetBlpeToPbeMode(uint32_t baseAddr, uint32_t crystalVal, mcg_
             /* return with error if not set */
             return kMcgErrPllcst;
         }
-#endif        
+#endif
     }
 #if FSL_FEATURE_MCG_HAS_PLL1
     else
     {
         /*
          * Configure MCG_C11
-         * If the PLL is to run in STOP mode 
-         * then the PLLSTEN bit needs to be OR'ed in here or in user code.       
+         * If the PLL is to run in STOP mode
+         * then the PLLSTEN bit needs to be OR'ed in here or in user code.
          */
         CLOCK_HAL_SetPrdiv1(prdivVal - 1);
 
-        /* 
+        /*
          * Configure MCG_C12
-         * The PLLS bit is set to enable the PLL, MCGOUT still sourced from ext ref clk 
+         * The PLLS bit is set to enable the PLL, MCGOUT still sourced from ext ref clk
          * The clock monitor is not enabled here as it has likely been enabled previously
          * and so the value of CME is not altered here.
-         * The loss of lock interrupt can be enabled by seperate OR'ing in the LOLIE bit 
+         * The loss of lock interrupt can be enabled by seperate OR'ing in the LOLIE bit
          * in MCG_C12
          */
 
@@ -2420,7 +2425,7 @@ uint32_t CLOCK_HAL_SetBlpeToPbeMode(uint32_t baseAddr, uint32_t crystalVal, mcg_
             /* return with error if not set */
             return kMcgErrPllLockBit;
         }
-   
+
         /* wait for PLLCST status bit to clear */
         for (i = 0 ; i < kMcgConstant2000 ; i++)
         {
@@ -2451,7 +2456,7 @@ uint32_t CLOCK_HAL_SetBlpeToPbeMode(uint32_t baseAddr, uint32_t crystalVal, mcg_
  *
  * Functon name : CLOCK_HAL_SetBlpeToFbeMode
  * Description  : Mode transition BLPE to FBE mode
- * This function transitions the MCG from BLPE mode to FBE mode. 
+ * This function transitions the MCG from BLPE mode to FBE mode.
  *
  * Parameters: crystalVal    - external reference clock frequency value
  *
@@ -2459,24 +2464,24 @@ uint32_t CLOCK_HAL_SetBlpeToPbeMode(uint32_t baseAddr, uint32_t crystalVal, mcg_
  *END***********************************************************************************/
 uint32_t CLOCK_HAL_SetBlpeToFbeMode(uint32_t baseAddr, uint32_t crystalVal)
 {
-#if FSL_FEATURE_MCG_HAS_PLL 	
+#if FSL_FEATURE_MCG_HAS_PLL
     uint16_t i;
-#endif	
-  
+#endif
+
     /* Check MCG is in BLPE mode */
     if (CLOCK_HAL_GetMcgMode(baseAddr) != kMcgModeBLPE)
     {
         return kMcgErrNotInBlpeMode;                /* return error code */
     }
- 
+
     /* To move from BLPE to FBE the PLLS mux be set to select the FLL output*/
     /* and the LP bit must be cleared */
-#if FSL_FEATURE_MCG_HAS_PLL      
+#if FSL_FEATURE_MCG_HAS_PLL
     CLOCK_HAL_SetPllSelMode(baseAddr, kMcgPllSelFll);
-#endif    
+#endif
     CLOCK_HAL_SetLowPowerMode(baseAddr, kMcgLowPowerSelNormal);
 
-#if FSL_FEATURE_MCG_HAS_PLL      
+#if FSL_FEATURE_MCG_HAS_PLL
     /* wait for PLLST status bit to set */
     for (i = 0 ; i < kMcgConstant2000 ; i++)
     {
@@ -2491,7 +2496,7 @@ uint32_t CLOCK_HAL_SetBlpeToFbeMode(uint32_t baseAddr, uint32_t crystalVal)
     if (CLOCK_HAL_GetPllStatMode(baseAddr) != kMcgPllStatFll)
     {
         /*  return with error if not clear */
-        return kMcgErrPllstClearTimeout; 
+        return kMcgErrPllstClearTimeout;
     }
 #endif
     /* now in FBE mode */

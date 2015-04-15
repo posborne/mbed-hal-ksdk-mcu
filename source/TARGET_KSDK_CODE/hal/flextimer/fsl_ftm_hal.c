@@ -34,7 +34,7 @@
  ******************************************************************************/
 void FTM_HAL_Init(uint32_t ftmBaseAddr)
 {
-
+    (void) ftmBaseAddr;
 }
 
 void FTM_HAL_EnablePwmMode(uint32_t ftmBaseAddr, ftm_pwm_param_t *config, uint8_t channel)
@@ -64,7 +64,7 @@ void FTM_HAL_EnablePwmMode(uint32_t ftmBaseAddr, ftm_pwm_param_t *config, uint8_
 
 void FTM_HAL_DisablePwmMode(uint32_t ftmBaseAddr, ftm_pwm_param_t *config, uint8_t channel)
 {
-
+    (void) config;
     FTM_HAL_SetChnCountVal(ftmBaseAddr, channel, 0);
     FTM_HAL_SetChnEdgeLevel(ftmBaseAddr, channel, 0);
     FTM_HAL_SetChnMSnBAMode(ftmBaseAddr, channel, 0);
@@ -183,4 +183,3 @@ uint32_t FTM_HAL_GetChnPairIndex(uint8_t channel)
 /*******************************************************************************
  * EOF
  ******************************************************************************/
-

@@ -498,7 +498,7 @@ static inline void FTM_HAL_SetChnCountVal(uint32_t ftmBaseAddr, uint8_t channel,
  * @param channel  The FTM peripheral channel number
  * @retval val return current channel counter value
  */
-static inline uint16_t FTM_HAL_GetChnCountVal(uint32_t ftmBaseAddr, uint8_t channel, uint16_t val)
+static inline uint16_t FTM_HAL_GetChnCountVal(uint32_t ftmBaseAddr, uint8_t channel)
 {
     assert(channel < FSL_FEATURE_FTM_CHANNEL_COUNT);
     return BR_FTM_CnV_VAL(ftmBaseAddr, channel);
@@ -1430,4 +1430,3 @@ void FTM_HAL_DisablePwmMode(uint32_t ftmBaseAddr, ftm_pwm_param_t *config, uint8
 /*******************************************************************************
  * EOF
  ******************************************************************************/
-
