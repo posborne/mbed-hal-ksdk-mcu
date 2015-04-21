@@ -37,7 +37,7 @@
 #define I2C_10BIT_SEND_SLAVE_DISCOVERY    (I2C_MASK_10BIT + I2C_MASK_SLAVE_DISCOVERY + I2C_SEND)
 #define I2C_10BIT_RECEIVE_SLAVE_DISCOVERY (I2C_MASK_10BIT + I2C_MASK_SLAVE_DISCOVERY + I2C_RECEIVE)
 
-static void i2c_buffer_set(i2c_t *obj, void *tx, int tx_length, void *rx, int rx_length);
+static void i2c_buffer_set(i2c_t *obj, void *tx, size_t tx_length, void *rx, size_t rx_length);
 static void i2c_enable_vector_interrupt(i2c_t *obj, uint32_t handler, uint8_t enable);
 static int i2c_tx_event_check(i2c_t *obj);
 static void i2c_buffer_write(i2c_t *obj);
@@ -274,7 +274,7 @@ static void i2c_start_read_asynch(i2c_t *obj, uint8_t address, uint8_t is10_bit_
     I2C_HAL_WriteByte(obj->i2c.base_addrs, (address | 0x01));
 }
 
-void i2c_transfer_asynch(i2c_t *obj, void *tx, uint32_t tx_length, void *rx, uint32_t rx_length, uint32_t address, uint32_t stop, uint32_t handler, uint32_t event, DMAUsage hint)
+void i2c_transfer_asynch(i2c_t *obj, void *tx, size_t tx_length, void *rx, size_t rx_length, uint32_t address, uint32_t stop, uint32_t handler, uint32_t event, DMAUsage hint)
 {
     (void) hint;
     obj->i2c.dma_state = DMA_USAGE_NEVER;
@@ -453,7 +453,7 @@ void i2c_abort_asynch(i2c_t *obj)
     i2c_stop(obj);
 }
 
-static void i2c_buffer_set(i2c_t *obj, void *tx, int tx_length, void *rx, int rx_length)
+static void i2c_buffer_set(i2c_t *obj, void *tx, size_t tx_length, void *rx, size_t rx_length)
 {
     obj->tx_buff.buffer = tx;
     obj->tx_buff.length = tx_length;
