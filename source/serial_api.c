@@ -47,8 +47,8 @@ static int serial_buffer_rx_read(serial_t *obj);
 static uint32_t serial_rx_error_event_check(serial_t *obj);
 static uint32_t serial_rx_event_check(serial_t *obj);
 static uint32_t serial_tx_event_check(serial_t *obj);
-static void serial_tx_buffer_set(serial_t *obj, void *tx, int length, uint8_t width);
-static void serial_rx_buffer_set(serial_t *obj, void *rx, int length, uint8_t width);
+static void serial_tx_buffer_set(serial_t *obj, void *tx, size_t length, uint8_t width);
+static void serial_rx_buffer_set(serial_t *obj, void *rx, size_t length, uint8_t width);
 static void serial_rx_set_char_match(serial_t *obj, uint8_t char_match);
 
 /* TODO:
@@ -416,7 +416,7 @@ static int serial_read_match_asynch(serial_t *obj)
 
 }
 
-static void serial_tx_buffer_set(serial_t *obj, void *tx, int length, uint8_t width)
+static void serial_tx_buffer_set(serial_t *obj, void *tx, size_t length, uint8_t width)
 {
     obj->tx_buff.buffer = tx;
     obj->tx_buff.length = length;
@@ -424,7 +424,7 @@ static void serial_tx_buffer_set(serial_t *obj, void *tx, int length, uint8_t wi
     obj->tx_buff.width = width;
 }
 
-static void serial_rx_buffer_set(serial_t *obj, void *rx, int length, uint8_t width)
+static void serial_rx_buffer_set(serial_t *obj, void *rx, size_t length, uint8_t width)
 {
     obj->rx_buff.buffer = rx;
     obj->rx_buff.length = length;
@@ -537,7 +537,7 @@ static void serial_rx_enable_interrupt(serial_t *obj, uint32_t handler, uint8_t 
     serial_irq_set(obj, (SerialIrq)0, enable);
 }
 
-int serial_tx_asynch(serial_t *obj, void *tx, uint32_t tx_length, uint8_t tx_width, uint32_t handler, uint32_t event, DMAUsage hint)
+int serial_tx_asynch(serial_t *obj, void *tx, size_t tx_length, uint8_t tx_width, uint32_t handler, uint32_t event, DMAUsage hint)
 {
     if (hint != DMA_USAGE_NEVER && obj->serial.tx_dma_state == DMA_USAGE_ALLOCATED) {
         // TODO DMA impl
@@ -559,7 +559,7 @@ int serial_tx_asynch(serial_t *obj, void *tx, uint32_t tx_length, uint8_t tx_wid
     return 0;
 }
 
-void serial_rx_asynch(serial_t *obj, void *rx, uint32_t rx_length, uint8_t rx_width, uint32_t handler, uint32_t event, uint8_t char_match, DMAUsage hint)
+void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_width, uint32_t handler, uint32_t event, uint8_t char_match, DMAUsage hint)
 {
     if (hint != DMA_USAGE_NEVER && obj->serial.rx_dma_state == DMA_USAGE_ALLOCATED) {
         // TODO DMA impl

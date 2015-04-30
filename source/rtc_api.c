@@ -23,6 +23,9 @@
 #include "PeripheralPins.h"
 
 void rtc_init(void) {
+    if (rtc_isenabled()) {
+        return;
+    }
     SIM_HAL_EnableRtcClock(SIM_BASE, 0U);
 
     RTC_HAL_Init(RTC_BASE);
@@ -53,7 +56,7 @@ void rtc_write(time_t t) {
         t = 1;
     }
     RTC_HAL_EnableCounter(RTC_BASE, false);
-    RTC_HAL_SetSecsReg(RTC_BASE, t);
+    RTC_HAL_SetSecsReg(RTC_BASE, t); // TODO: this should shift all lp timer events
     RTC_HAL_EnableCounter(RTC_BASE, true);
 }
 
