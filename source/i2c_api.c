@@ -248,9 +248,11 @@ int i2c_byte_write(i2c_t *obj, int data) {
 
 static void i2c_buffer_write(i2c_t *obj)
 {
-    uint8_t *tx = (uint8_t *)obj->tx_buff.buffer;
-    I2C_HAL_WriteByte(obj->i2c.base_addrs, tx[obj->tx_buff.pos]);
-    obj->tx_buff.pos++;
+    if (obj->tx_buff.pos < obj->tx_buff.length) {
+        uint8_t *tx = (uint8_t *)obj->tx_buff.buffer;
+        I2C_HAL_WriteByte(obj->i2c.base_addrs, tx[obj->tx_buff.pos]);
+        obj->tx_buff.pos++;
+    }
 }
 
 static void i2c_buffer_read(i2c_t *obj)
@@ -292,8 +294,8 @@ void i2c_transfer_asynch(i2c_t *obj, void *tx, size_t tx_length, void *rx, size_
     }
 
     I2C_HAL_SetDirMode(obj->i2c.base_addrs, kI2CSend);
-    // start sending if tx buffer is defined, otherwise start receiving, continue in IRQ
-    if (obj->tx_buff.buffer && obj->tx_buff.length) {
+    // tx buffer set or rx empty (advertise only) - sending, otherwise receiving
+    if ((obj->tx_buff.buffer && obj->tx_buff.length) || (obj->rx_buff.buffer == NULL || obj->rx_buff.length == 0)) {
         i2c_start_write_asynch(obj, address, is10_bit_add);
     } else {
         i2c_start_read_asynch(obj, address, is10_bit_add);
@@ -313,29 +315,6 @@ static void i2c_enable_vector_interrupt(i2c_t *obj, uint32_t handler, uint8_t en
         NVIC_SetVector(i2c_irq[obj->i2c.instance], handler);
         NVIC_DisableIRQ(i2c_irq[obj->i2c.instance]);
     }
-}
-
-static int i2c_tx_event_check(i2c_t *obj)
-{
-    int event = 0;
-    uint8_t transfer_compl = I2C_HAL_GetStatusFlag(obj->i2c.base_addrs, kI2CTransferComplete);
-
-    if (((obj->tx_buff.pos == obj->tx_buff.length) && transfer_compl)) {
-        if (obj->i2c.event & I2C_EVENT_TRANSFER_COMPLETE) {
-            event = I2C_EVENT_TRANSFER_COMPLETE;
-        }
-        // generate stop if nothing to receive, otherwise receive will generate stop
-        if (obj->i2c.generate_stop && !obj->rx_buff.buffer) {
-            i2c_stop(obj);
-        }
-    } else if (obj->tx_buff.pos < obj->tx_buff.length) {
-        if (I2C_HAL_GetStatusFlag(obj->i2c.base_addrs, kI2CReceivedNak)) {
-             event = I2C_EVENT_TRANSFER_EARLY_NACK;
-             i2c_stop(obj);
-        }
-        i2c_buffer_write(obj);
-    }
-    return event;
 }
 
 uint32_t i2c_irq_handler_asynch(i2c_t *obj)
@@ -366,8 +345,16 @@ uint32_t i2c_irq_handler_asynch(i2c_t *obj)
                 I2C_HAL_WriteByte(obj->i2c.base_addrs, (obj->i2c.address & 0xFF));
                 break;
             case I2C_SEND_SLAVE_DISCOVERY:
-                obj->i2c.state = I2C_SEND;
-                i2c_buffer_write(obj);
+                if ((obj->tx_buff.buffer == NULL) || (obj->tx_buff.length == 0)) {
+                    // only to send address + ack was received
+                    event = I2C_EVENT_TRANSFER_COMPLETE;
+                    if (obj->i2c.generate_stop) {
+                        i2c_stop(obj);
+                    }
+                } else {
+                    obj->i2c.state = I2C_SEND;
+                    i2c_buffer_write(obj);
+                }
                 break;
             case I2C_RECEIVE_SLAVE_DISCOVERY:
                 I2C_HAL_SetDirMode(obj->i2c.base_addrs, kI2CReceive);
@@ -383,54 +370,69 @@ uint32_t i2c_irq_handler_asynch(i2c_t *obj)
             default:
                 break;
         }
-        return 0;
-    }
-
-    // sending/receiving data
-    if (obj->i2c.state == I2C_SEND) {
-        event = i2c_tx_event_check(obj);
-        // all sent, switch to receive if there're data
-        if (event && obj->rx_buff.buffer) {
-            event = 0; //wait for RX to complete, erase the event
-            uint16_t address = obj->i2c.address;
-            uint8_t is10_bit_add = 0;
-            if ((address >> 10) == 0x1E) {
-                address = obj->i2c.address >> 7;
-                is10_bit_add = 1;
-            }
-            i2c_start_read_asynch(obj, address, is10_bit_add);
-        }
-    } else if (obj->rx_buff.pos < obj->rx_buff.length) {
-        int left = obj->rx_buff.length - obj->rx_buff.pos;
-        switch (left) {
-            case 0x1:
-                if (obj->i2c.event & I2C_EVENT_TRANSFER_COMPLETE) {
-                    event = I2C_EVENT_TRANSFER_COMPLETE;
-                }
+    } else {
+        // sending/receiving data
+        if (obj->i2c.state == I2C_SEND) {
+            if (I2C_HAL_GetStatusFlag(obj->i2c.base_addrs, kI2CReceivedNak)) {
+                // Something went wrong - slave might have full buffer. Stop the current transfer
+                event = I2C_EVENT_TRANSFER_EARLY_NACK;
                 if (obj->i2c.generate_stop) {
                     i2c_stop(obj);
                 }
-                break;
-            case 0x2:
-                // NAK only if there's stop or restart condition (stop-start)
-                if (obj->i2c.generate_stop) {
-                    I2C_HAL_SendNak(obj->i2c.base_addrs);
-                } else {
-                    I2C_HAL_SendAck(obj->i2c.base_addrs);
+            } else {
+                uint8_t transfer_compl = I2C_HAL_GetStatusFlag(obj->i2c.base_addrs, kI2CTransferComplete);
+                // tx - continue/stop or switch to rx
+                if (((obj->tx_buff.pos == obj->tx_buff.length) && transfer_compl)) {
+                    event = I2C_EVENT_TRANSFER_COMPLETE;
+                    if (obj->rx_buff.buffer && obj->rx_buff.length) {
+                        event = 0; //wait for RX to complete, erase the event
+                        uint16_t address = obj->i2c.address;
+                        uint8_t is10_bit_add = 0;
+                        if ((address >> 10) == 0x1E) {
+                            address = obj->i2c.address >> 7;
+                            is10_bit_add = 1;
+                        }
+                        i2c_start_read_asynch(obj, address, is10_bit_add);
+                    } else {
+                        // all send
+                        if (obj->i2c.generate_stop) {
+                            i2c_stop(obj);
+                        }
+                    }
+                } else if (transfer_compl) {
+                    i2c_buffer_write(obj);
                 }
-                break;
-            default:
-                I2C_HAL_SendAck(obj->i2c.base_addrs);
-                break;
+            }
+        } else if (obj->rx_buff.pos < obj->rx_buff.length) {
+            int left = obj->rx_buff.length - obj->rx_buff.pos;
+            switch (left) {
+                case 0x1:
+                    event = I2C_EVENT_TRANSFER_COMPLETE;
+                    if (obj->i2c.generate_stop) {
+                        i2c_stop(obj);
+                    }
+                    break;
+                case 0x2:
+                    // NAK only if there's stop or restart condition (stop-start)
+                    if (obj->i2c.generate_stop) {
+                        I2C_HAL_SendNak(obj->i2c.base_addrs);
+                    } else {
+                        I2C_HAL_SendAck(obj->i2c.base_addrs);
+                    }
+                    break;
+                default:
+                    I2C_HAL_SendAck(obj->i2c.base_addrs);
+                    break;
+            }
+            i2c_buffer_read(obj);
         }
-        i2c_buffer_read(obj);
     }
 
     if (event) {
         i2c_enable_vector_interrupt(obj, obj->i2c.vector_prev, false);
     }
 
-    return event;
+    return (event & obj->i2c.event);
 }
 
 uint8_t i2c_active(i2c_t *obj)
