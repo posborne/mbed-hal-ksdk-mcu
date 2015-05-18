@@ -39,7 +39,6 @@
 
 static void i2c_buffer_set(i2c_t *obj, void *tx, size_t tx_length, void *rx, size_t rx_length);
 static void i2c_enable_vector_interrupt(i2c_t *obj, uint32_t handler, uint8_t enable);
-static int i2c_tx_event_check(i2c_t *obj);
 static void i2c_buffer_write(i2c_t *obj);
 static void i2c_buffer_read(i2c_t *obj);
 static void i2c_start_write_asynch(i2c_t *obj, uint8_t address, uint8_t is10_bit_add);
