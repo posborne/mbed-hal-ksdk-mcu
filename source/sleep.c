@@ -34,7 +34,13 @@ void sleep(void) {
 }
 
 void deepsleep(void) {
-    mcg_clock_select_t mcg_clock = CLOCK_HAL_GetClkSrcMode(MCG_BASE);
+    /* NOTE: this should me mcg_clock_select_t mcg_clock = CLOCK_HAL_GetClkSrcMode(MCG_BASE);
+       However, at least with arm-none-eabi-gcc 4.8.3 20131129, the above call ends up doing a 32 bit access to the MCG
+       registers, which results in a hard fault, since the MCG registers only accept 8 bit accesses apparently.
+       Newer version of KSDK changed the way they access the MCG, so that should be fixed, but until we update to
+       a newer KSDK, the code below should provide a compiler-agnostic fix
+    */
+    mcg_clock_select_t mcg_clock = (mcg_clock_select_t)(((*(volatile uint8_t*) HW_MCG_C1_ADDR(MCG_BASE)) & BM_MCG_C1_CLKS) >> BP_MCG_C1_CLKS);
 
     smc_power_mode_protection_config_t sleep_config = {
         .vlpProt = true,            /*!< VLP protect*/
