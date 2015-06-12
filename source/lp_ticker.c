@@ -32,8 +32,16 @@ When adding a new event, if timestamp fits within LPTMR 16bit counter, its inter
 otherwise RTC seconds alarm is used, and the leftover is for LPTMR timer.
 */
 
-static int lp_ticker_inited = 0;
-static int lp_timer_schedule = 0;
+// We use a part of the RTC seconds register to provide a "virtual" 32 bit timer
+// The lower RTC_TIMER_BITS part of the RTC seconds register are going to be part of the virtual timer
+
+#define RTC_TIMER_BITS    (17)
+#define RTC_TIMER_MASK    ((1UL << RTC_TIMER_BITS) - 1)
+#define RTC_OVERFLOW_BITS (32 - RTC_TIMER_BITS)
+#define RTC_OVERFLOW_MASK (((1UL << RTC_OVERFLOW_BITS) - 1) << RTC_TIMER_BITS)
+
+static uint32_t lp_ticker_inited = 0;
+static uint32_t lp_timer_schedule = 0;
 static void lptmr_isr(void);
 static void rct_isr(void);
 
@@ -75,10 +83,6 @@ void lp_ticker_init(void) {
     vIRQ_EnableIRQ(timer_irq[0]);
 }
 
-// 4095 seconds is max, closest to uint32t max
-#define RTC_TIMER_BITS (12)
-#define RTC_TIMER_MASK ((1 << RTC_TIMER_BITS) - 1)
-
 uint32_t lp_ticker_read() {
     if (!lp_ticker_inited) {
         lp_ticker_init();
@@ -90,8 +94,7 @@ uint32_t lp_ticker_read() {
         temp_pre = RTC_HAL_GetPrescaler(RTC_BASE);
         temp_sec = RTC_HAL_GetSecsReg(RTC_BASE) & RTC_TIMER_MASK;
     }
-    uint32_t ret = ((temp_sec * 1000000) + (((uint64_t)temp_pre * 1000000) / 32768));
-    return ret;
+    return (temp_sec << 15 | temp_pre);
 }
 
 void lp_ticker_disable_interrupt(void) {
@@ -104,13 +107,21 @@ void lp_ticker_clear_interrupt(void) {
     RTC_HAL_SetAlarmReg(RTC_BASE, 0); //writing clears the flag
 }
 
+uint32_t lp_ticker_get_overflows(void)
+{
+    // TODO: is there a race condition below if the RTC value changes right after we read it?
+    uint32_t temp = RTC_HAL_GetSecsReg(RTC_BASE) & RTC_OVERFLOW_MASK;
+    while (temp != (RTC_HAL_GetSecsReg(RTC_BASE) & RTC_OVERFLOW_MASK)){
+        temp = RTC_HAL_GetSecsReg(RTC_BASE) & RTC_OVERFLOW_MASK;
+    }
+    return temp >> RTC_TIMER_BITS;
+}
+
 static void lptmr_isr(void)
 {
     LPTMR_HAL_ClearIntFlag(LPTMR0_BASE);
     LPTMR_HAL_SetIntCmd(LPTMR0_BASE, 0);
     LPTMR_HAL_Disable(LPTMR0_BASE);
-    // we are the last timeout, go up to report
-    lp_ticker_irq_handler();
 }
 
 static void rct_isr(void)
@@ -125,20 +136,14 @@ static void rct_isr(void)
         LPTMR_HAL_Enable(LPTMR0_BASE);
         LPTMR_HAL_SetIntCmd(LPTMR0_BASE, 1);
         lp_timer_schedule = 0;
-    } else {
-        // RTC was only scheduled, go up to report
-        lp_ticker_irq_handler();
     }
 }
 
-void lp_ticker_set_interrupt(timestamp_t timestamp) {
-    uint32_t now = lp_ticker_read();
-    uint32_t delta = timestamp > now ? timestamp - now : (uint32_t)((uint64_t)timestamp + 0xFFFFFFFF - now);
-    uint32_t ticks = (delta / 30) + 1;
+void lp_ticker_set_interrupt(uint32_t ticks) {
     lp_timer_schedule = 0;
 
     RTC_HAL_EnableCounter(RTC_BASE, false);
-    if (ticks > 0xFFFE) {
+    if (ticks > 0xFFFF) {
         ticks -= 0x7FFF + 1 - RTC_HAL_GetPrescaler(RTC_BASE);
         uint32_t seconds = RTC_HAL_GetSecsReg(RTC_BASE);
         while (ticks > 0xFFFF) {
