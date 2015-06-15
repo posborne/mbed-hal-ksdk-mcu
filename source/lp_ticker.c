@@ -97,16 +97,6 @@ uint32_t lp_ticker_read() {
     return (temp_sec << 15 | temp_pre);
 }
 
-void lp_ticker_disable_interrupt(void) {
-     LPTMR_HAL_SetIntCmd(LPTMR0_BASE, 0);
-     RTC_HAL_SetAlarmIntCmd(RTC_BASE, false);
-}
-
-void lp_ticker_clear_interrupt(void) {
-    LPTMR_HAL_ClearIntFlag(LPTMR0_BASE);
-    RTC_HAL_SetAlarmReg(RTC_BASE, 0); //writing clears the flag
-}
-
 uint32_t lp_ticker_get_overflows(void)
 {
     // TODO: is there a race condition below if the RTC value changes right after we read it?
