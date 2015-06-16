@@ -25,10 +25,10 @@
 #include "lp_ticker_api.h"
 
 /*
-The Low power  timer for KSDK devices uses 2 timers. The timestamp is 32bit number,
-however LPTMR contains only 16-bit timer. In addition, RTC contains only seconds alarm interrupt.
-
-When adding a new event, if timestamp fits within LPTMR 16bit counter, its interrupt is set only,
+The Low power  timer for KSDK devices uses 2 timers. The reason: LPTMR contains only 16-bit timer.
+In addition, RTC contains only seconds alarm interrupt.
+ 
+When adding a new event, if the new time fits within LPTMR 16bit counter, its interrupt is set only,
 otherwise RTC seconds alarm is used, and the leftover is for LPTMR timer.
 */
 
@@ -40,10 +40,35 @@ otherwise RTC seconds alarm is used, and the leftover is for LPTMR timer.
 #define RTC_OVERFLOW_BITS (32 - RTC_TIMER_BITS)
 #define RTC_OVERFLOW_MASK (((1UL << RTC_OVERFLOW_BITS) - 1) << RTC_TIMER_BITS)
 
-static uint32_t lp_ticker_inited = 0;
-static uint32_t lp_timer_schedule = 0;
 static void lptmr_isr(void);
 static void rct_isr(void);
+
+static uint32_t lp_ticker_inited = 0;
+static uint32_t lp_timer_schedule = 0;
+// Store compare-match as we use 2 timers, plus LPTMR is relative to 0
+static uint32_t lp_compare_value = 0xFFFFFFFFu;
+
+static void lptmr_isr(void)
+{
+    LPTMR_HAL_ClearIntFlag(LPTMR0_BASE);
+    LPTMR_HAL_SetIntCmd(LPTMR0_BASE, 0);
+    LPTMR_HAL_Disable(LPTMR0_BASE);
+}
+
+static void rct_isr(void)
+{
+    RTC_HAL_SetAlarmIntCmd(RTC_BASE, false);
+    RTC_HAL_SetAlarmReg(RTC_BASE, 0);
+
+    if (lp_timer_schedule) {
+        // schedule LPTMR, restart counter and set compare
+        LPTMR_HAL_Disable(LPTMR0_BASE);
+        LPTMR_HAL_SetCompareValue(LPTMR0_BASE, lp_timer_schedule);
+        LPTMR_HAL_Enable(LPTMR0_BASE);
+        LPTMR_HAL_SetIntCmd(LPTMR0_BASE, 1);
+        lp_timer_schedule = 0;
+    }
+}
 
 void lp_ticker_init(void) {
     if (lp_ticker_inited) {
@@ -107,29 +132,17 @@ uint32_t lp_ticker_get_overflows(void)
     return temp >> RTC_TIMER_BITS;
 }
 
-static void lptmr_isr(void)
+uint32_t lp_ticker_get_compare_match(void)
 {
-    LPTMR_HAL_ClearIntFlag(LPTMR0_BASE);
-    LPTMR_HAL_SetIntCmd(LPTMR0_BASE, 0);
-    LPTMR_HAL_Disable(LPTMR0_BASE);
+    return lp_compare_value;
 }
 
-static void rct_isr(void)
-{
-    RTC_HAL_SetAlarmIntCmd(RTC_BASE, false);
-    RTC_HAL_SetAlarmReg(RTC_BASE, 0);
-
-    if (lp_timer_schedule) {
-        // schedule LPTMR, restart counter and set compare
-        LPTMR_HAL_Disable(LPTMR0_BASE);
-        LPTMR_HAL_SetCompareValue(LPTMR0_BASE, lp_timer_schedule);
-        LPTMR_HAL_Enable(LPTMR0_BASE);
-        LPTMR_HAL_SetIntCmd(LPTMR0_BASE, 1);
-        lp_timer_schedule = 0;
-    }
-}
-
-void lp_ticker_set_interrupt(uint32_t ticks) {
+void lp_ticker_set_interrupt(uint32_t now, uint32_t time) {
+    // On K64F, the compare value can be only set when the LPTMR is disabled
+    // However, disabling the LPTMR will automatically clear the LPTMR counter
+    // So we need to compensate for the time that already passed
+    lp_compare_value = time;
+    uint32_t ticks = time > now ? time - now : (uint32_t)((uint64_t)time + 0xFFFFFFFFu - now);
     lp_timer_schedule = 0;
 
     RTC_HAL_EnableCounter(RTC_BASE, false);
