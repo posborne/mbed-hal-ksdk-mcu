@@ -18,6 +18,8 @@
 #include "fsl_mcg_hal.h"
 #include "fsl_smc_hal.h"
 
+extern void lp_ticker_schedule_lptmr(void);
+
 void sleep(void) {
     smc_power_mode_protection_config_t sleep_config = {
         .vlpProt = true,            /*!< VLP protect*/
@@ -57,6 +59,9 @@ void deepsleep(void) {
     SCB->SCR = 1 << SCB_SCR_SLEEPDEEP_Pos;
 
     __WFI();
+
+    // If LPTMR is scheduled, set the timer and go to sleep.
+    lp_ticker_schedule_lptmr();
 
     //Switch back to PLL as clock source if needed
     //The interrupt that woke up the device will run at reduced speed

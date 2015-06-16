@@ -44,14 +44,14 @@ static void lptmr_isr(void);
 static void rct_isr(void);
 
 static uint32_t lp_ticker_inited = 0;
-static uint32_t lp_timer_schedule = 0;
+static uint32_t lp_lptmr_schedule = 0;
 // Store compare-match as we use 2 timers, plus LPTMR is relative to 0
 static uint32_t lp_compare_value = 0xFFFFFFFFu;
 
 static void lptmr_isr(void)
 {
+    // TODO 0xc0170: looks like this gets fired even before set_interrupt
     LPTMR_HAL_ClearIntFlag(LPTMR0_BASE);
-    LPTMR_HAL_SetIntCmd(LPTMR0_BASE, 0);
     LPTMR_HAL_Disable(LPTMR0_BASE);
 }
 
@@ -59,14 +59,18 @@ static void rct_isr(void)
 {
     RTC_HAL_SetAlarmIntCmd(RTC_BASE, false);
     RTC_HAL_SetAlarmReg(RTC_BASE, 0);
+}
 
-    if (lp_timer_schedule) {
+void lp_ticker_schedule_lptmr(void)
+{
+    if (lp_lptmr_schedule) {
         // schedule LPTMR, restart counter and set compare
         LPTMR_HAL_Disable(LPTMR0_BASE);
-        LPTMR_HAL_SetCompareValue(LPTMR0_BASE, lp_timer_schedule);
+        LPTMR_HAL_SetCompareValue(LPTMR0_BASE, lp_lptmr_schedule);
         LPTMR_HAL_Enable(LPTMR0_BASE);
-        LPTMR_HAL_SetIntCmd(LPTMR0_BASE, 1);
-        lp_timer_schedule = 0;
+        lp_lptmr_schedule = 0;
+        // Go back to sleep
+        __WFI();
     }
 }
 
@@ -102,6 +106,7 @@ void lp_ticker_init(void) {
     LPTMR0_CMR = 0x00;
     LPTMR_HAL_SetTimerModeMode(LPTMR0_BASE, kLptmrTimerModeTimeCounter);
     LPTMR0_PSR |= LPTMR_PSR_PCS(0x2) | LPTMR_PSR_PBYP_MASK;
+    LPTMR_HAL_SetIntCmd(LPTMR0_BASE, 1);
     LPTMR_HAL_SetFreeRunningCmd(LPTMR0_BASE, 0);
     IRQn_Type timer_irq[] = LPTMR_IRQS;
     vIRQ_SetVector(timer_irq[0], (uint32_t)lptmr_isr);
@@ -143,7 +148,7 @@ void lp_ticker_set_interrupt(uint32_t now, uint32_t time) {
     // So we need to compensate for the time that already passed
     lp_compare_value = time;
     uint32_t ticks = time > now ? time - now : (uint32_t)((uint64_t)time + 0xFFFFFFFFu - now);
-    lp_timer_schedule = 0;
+    lp_lptmr_schedule = 0;
 
     RTC_HAL_EnableCounter(RTC_BASE, false);
     if (ticks > 0xFFFF) {
@@ -156,13 +161,12 @@ void lp_ticker_set_interrupt(uint32_t now, uint32_t time) {
         RTC_HAL_SetAlarmReg(RTC_BASE, seconds);
         RTC_HAL_SetAlarmIntCmd(RTC_BASE, true);
         // the lp timer will be triggered once RTC alarm is set
-        lp_timer_schedule = ticks;
+        lp_lptmr_schedule = ticks;
     } else {
         // restart counter, set compare
         LPTMR_HAL_Disable(LPTMR0_BASE);
         LPTMR_HAL_SetCompareValue(LPTMR0_BASE, ticks);
         LPTMR_HAL_Enable(LPTMR0_BASE);
-        LPTMR_HAL_SetIntCmd(LPTMR0_BASE, 1);
     }
     RTC_HAL_EnableCounter(RTC_BASE, true);
 }
