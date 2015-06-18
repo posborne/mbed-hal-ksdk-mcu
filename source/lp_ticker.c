@@ -40,6 +40,9 @@ otherwise RTC seconds alarm is used, and the leftover is for LPTMR timer.
 #define RTC_OVERFLOW_BITS (32 - RTC_TIMER_BITS)
 #define RTC_OVERFLOW_MASK (((1UL << RTC_OVERFLOW_BITS) - 1) << RTC_TIMER_BITS)
 
+#define RTC_PRESCALER_MAX_VALUE 0x7FFF
+#define LPTMR_TIMER_MAX_VALUE   0xFFFF
+
 static void lptmr_isr(void);
 static void rct_isr(void);
 
@@ -151,11 +154,11 @@ void lp_ticker_set_interrupt(uint32_t now, uint32_t time) {
     lp_lptmr_schedule = 0;
 
     RTC_HAL_EnableCounter(RTC_BASE, false);
-    if (ticks > 0xFFFF) {
-        ticks -= 0x7FFF + 1 - RTC_HAL_GetPrescaler(RTC_BASE);
+    if (ticks > LPTMR_TIMER_MAX_VALUE) {
+        ticks -= RTC_PRESCALER_MAX_VALUE + 1 - RTC_HAL_GetPrescaler(RTC_BASE);
         uint32_t seconds = RTC_HAL_GetSecsReg(RTC_BASE);
-        while (ticks > 0xFFFF) {
-            ticks -= 0x7FFF + 1;
+        while (ticks > LPTMR_TIMER_MAX_VALUE) {
+            ticks -= RTC_PRESCALER_MAX_VALUE + 1;
             seconds++;
         }
         RTC_HAL_SetAlarmReg(RTC_BASE, seconds);
