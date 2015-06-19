@@ -96,13 +96,13 @@ void spi_free(spi_t *obj) {
     (void) obj;
     // [TODO]
 }
-void spi_format(spi_t *obj, int bits, int mode, int slave) {
+void spi_format(spi_t *obj, int bits, int mode, spi_bitorder_t order, int slave) {
     dspi_data_format_config_t config = {0};
     config.bitsPerFrame = (uint32_t)bits;
     obj->spi.bits = bits;
     config.clkPolarity = (mode & 0x2) ? kDspiClockPolarity_ActiveLow : kDspiClockPolarity_ActiveHigh;
     config.clkPhase = (mode & 0x1) ? kDspiClockPhase_SecondEdge : kDspiClockPhase_FirstEdge;
-    config.direction = kDspiMsbFirst;
+    config.direction = (dspi_shift_direction_t)order;
     dspi_status_t result = DSPI_HAL_SetDataFormat(obj->spi.address, kDspiCtar0, &config);
     if (result != kStatus_DSPI_Success) {
         error("Failed to configure SPI data format");
