@@ -73,9 +73,9 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     DSPI_HAL_Disable(obj->spi.address);
     // set default format and frequency
     if (ssel == NC) {
-        spi_format(obj, 8, 0, 0);  // 8 bits, mode 0, master
+        spi_format(obj, 8, 0, SPI_MSB, 0);  // 8 bits, mode 0, master
     } else {
-        spi_format(obj, 8, 0, 1);  // 8 bits, mode 0, slave
+        spi_format(obj, 8, 0, SPI_MSB, 1);  // 8 bits, mode 0, slave
     }
     DSPI_HAL_SetDelay(obj->spi.address, kDspiCtar0, 0, 0, kDspiPcsToSck);
     spi_frequency(obj, 1000000);
@@ -102,7 +102,11 @@ void spi_format(spi_t *obj, int bits, int mode, spi_bitorder_t order, int slave)
     obj->spi.bits = bits;
     config.clkPolarity = (mode & 0x2) ? kDspiClockPolarity_ActiveLow : kDspiClockPolarity_ActiveHigh;
     config.clkPhase = (mode & 0x1) ? kDspiClockPhase_SecondEdge : kDspiClockPhase_FirstEdge;
-    config.direction = (dspi_shift_direction_t)order;
+    if (order == SPI_MSB) {
+        config.direction = kDspiMsbFirst;
+    } else {
+        config.direction = kDspiLsbFirst;
+    }
     dspi_status_t result = DSPI_HAL_SetDataFormat(obj->spi.address, kDspiCtar0, &config);
     if (result != kStatus_DSPI_Success) {
         error("Failed to configure SPI data format");
