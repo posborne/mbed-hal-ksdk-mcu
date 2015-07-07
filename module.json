@@ -64,7 +64,7 @@
   },
   "targetDependencies": {
     "k64f": {
-      "mbed-hal-k64f": "~0.1.0"
+      "mbed-hal-k64f": "~0.2.0"
     }
   }
 }
