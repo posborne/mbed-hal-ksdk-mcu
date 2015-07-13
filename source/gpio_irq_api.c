@@ -118,7 +118,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
             error("gpio_irq only supported on port A-E.");
             break;
     }
-    vIRQ_SetVector(irq_n, vector, 0);
+    vIRQ_SetVector(irq_n, vector);
     vIRQ_EnableIRQ(irq_n);
 
     obj->ch = ch_base + obj->pin;

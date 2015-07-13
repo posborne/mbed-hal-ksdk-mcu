@@ -59,7 +59,7 @@ void lp_ticker_init(void) {
         RTC_HAL_EnableCounter(RTC_BASE, true);
     }
     vIRQ_ClearPendingIRQ(RTC_IRQn);
-    vIRQ_SetVector(RTC_IRQn, (uint32_t)rct_isr, 0);
+    vIRQ_SetVector(RTC_IRQn, (uint32_t)rct_isr);
     vIRQ_EnableIRQ(RTC_IRQn);
 
     // configure LPTMR
@@ -71,7 +71,7 @@ void lp_ticker_init(void) {
     LPTMR0_PSR |= LPTMR_PSR_PCS(0x2) | LPTMR_PSR_PBYP_MASK;
     LPTMR_HAL_SetFreeRunningCmd(LPTMR0_BASE, 0);
     IRQn_Type timer_irq[] = LPTMR_IRQS;
-    vIRQ_SetVector(timer_irq[0], (uint32_t)lptmr_isr, 0);
+    vIRQ_SetVector(timer_irq[0], (uint32_t)lptmr_isr);
     vIRQ_EnableIRQ(timer_irq[0]);
 }
 

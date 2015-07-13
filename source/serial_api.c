@@ -199,7 +199,7 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
             case RxIrq: UART_HAL_SetRxDataRegFullIntCmd(obj->serial.address, true); break;
             case TxIrq: UART_HAL_SetTxDataRegEmptyIntCmd(obj->serial.address, true); break;
         }
-        vIRQ_SetVector(obj->serial.irq_number, obj->serial.vector_cur, 0);
+        vIRQ_SetVector(obj->serial.irq_number, obj->serial.vector_cur);
         vIRQ_EnableIRQ(obj->serial.irq_number);
 
     } else { // disable
