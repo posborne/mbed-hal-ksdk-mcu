@@ -307,12 +307,12 @@ static void i2c_enable_vector_interrupt(i2c_t *obj, uint32_t handler, uint8_t en
     IRQn_Type i2c_irq[] = I2C_IRQS;
     if (enable) {
         obj->i2c.vector_cur = handler;
-        obj->i2c.vector_prev = NVIC_GetVector(i2c_irq[obj->i2c.instance]);
-        NVIC_SetVector(i2c_irq[obj->i2c.instance], handler);
-        NVIC_EnableIRQ(i2c_irq[obj->i2c.instance]);
+        obj->i2c.vector_prev = vIRQ_GetVector(i2c_irq[obj->i2c.instance]);
+        vIRQ_SetVector(i2c_irq[obj->i2c.instance], handler, 0);
+        vIRQ_EnableIRQ(i2c_irq[obj->i2c.instance]);
     } else {
-        NVIC_SetVector(i2c_irq[obj->i2c.instance], handler);
-        NVIC_DisableIRQ(i2c_irq[obj->i2c.instance]);
+        vIRQ_SetVector(i2c_irq[obj->i2c.instance], handler, 0);
+        vIRQ_DisableIRQ(i2c_irq[obj->i2c.instance]);
     }
 }
 

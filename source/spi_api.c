@@ -175,11 +175,11 @@ static void spi_enable_vector_interrupt(spi_t *obj, uint32_t handler, uint8_t en
 {
     IRQn_Type spi_irq[] = SPI_IRQS;
     if (enable) {
-        NVIC_SetVector(spi_irq[obj->spi.instance], handler);
-        NVIC_EnableIRQ(spi_irq[obj->spi.instance]);
+        vIRQ_SetVector(spi_irq[obj->spi.instance], handler, 0);
+        vIRQ_EnableIRQ(spi_irq[obj->spi.instance]);
     } else {
-        NVIC_SetVector(spi_irq[obj->spi.instance], handler);
-        NVIC_DisableIRQ(spi_irq[obj->spi.instance]);
+        vIRQ_SetVector(spi_irq[obj->spi.instance], handler, 0);
+        vIRQ_DisableIRQ(spi_irq[obj->spi.instance]);
     }
 }
 
