@@ -130,7 +130,7 @@ uint32_t lp_ticker_read() {
     return (temp_sec << 15 | temp_pre);
 }
 
-uint32_t lp_ticker_get_overflows(void)
+uint32_t lp_ticker_get_overflows_counter(void)
 {
     // TODO: is there a race condition below if the RTC value changes right after we read it?
     uint32_t temp = RTC_HAL_GetSecsReg(RTC_BASE) & RTC_OVERFLOW_MASK;
