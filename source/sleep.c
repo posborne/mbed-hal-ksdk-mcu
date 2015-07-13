@@ -33,6 +33,10 @@ void sleep(void) {
 
     SCB->SCR &= ~SCB_SCR_SLEEPDEEP_Msk;
     __WFI();
+
+    // If LPTMR is scheduled, set the timer and go to sleep. This is valid only if lp ticker
+    // was set prior calling sleep function (minar)
+    lp_ticker_schedule_lptmr();
 }
 
 void deepsleep(void) {
@@ -59,9 +63,6 @@ void deepsleep(void) {
     SCB->SCR = 1 << SCB_SCR_SLEEPDEEP_Pos;
 
     __WFI();
-
-    // If LPTMR is scheduled, set the timer and go to sleep.
-    lp_ticker_schedule_lptmr();
 
     //Switch back to PLL as clock source if needed
     //The interrupt that woke up the device will run at reduced speed
