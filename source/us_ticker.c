@@ -27,25 +27,25 @@ void us_ticker_init(void) {
         return;
     }
     us_ticker_inited = 1;
-    
+
     //Common for ticker/timer
     uint32_t busClock;
     CLOCK_SYS_EnablePitClock(0);
     PIT_HAL_Enable(PIT_BASE);
     CLOCK_SYS_GetFreq(kBusClock, &busClock);
-    
+
     //Timer
     PIT_HAL_SetTimerPeriodByCount(PIT_BASE, 0, busClock / 1000000 - 1);
     PIT_HAL_SetTimerPeriodByCount(PIT_BASE, 1, 0xFFFFFFFF);
     PIT_HAL_SetTimerChainCmd(PIT_BASE, 1, true);
     PIT_HAL_StartTimer(PIT_BASE, 0);
     PIT_HAL_StartTimer(PIT_BASE, 1);
-    
+
     //Ticker
     PIT_HAL_SetTimerPeriodByCount(PIT_BASE, 2, busClock / 1000000 - 1);
     PIT_HAL_SetTimerChainCmd(PIT_BASE, 3, true);
-    NVIC_SetVector(PIT3_IRQn, (uint32_t)us_ticker_irq_handler);
-    NVIC_EnableIRQ(PIT3_IRQn);
+    vIRQ_SetVector(PIT3_IRQn, (uint32_t)us_ticker_irq_handler);
+    vIRQ_EnableIRQ(PIT3_IRQn);
 }
 
 

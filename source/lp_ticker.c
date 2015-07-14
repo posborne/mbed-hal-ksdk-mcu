@@ -27,7 +27,7 @@
 /*
 The Low power  timer for KSDK devices uses 2 timers. The timestamp is 32bit number,
 however LPTMR contains only 16-bit timer. In addition, RTC contains only seconds alarm interrupt.
- 
+
 When adding a new event, if timestamp fits within LPTMR 16bit counter, its interrupt is set only,
 otherwise RTC seconds alarm is used, and the leftover is for LPTMR timer.
 */
@@ -58,9 +58,9 @@ void lp_ticker_init(void) {
         RTC_HAL_SetAlarmReg(RTC_BASE, 0);
         RTC_HAL_EnableCounter(RTC_BASE, true);
     }
-    NVIC_ClearPendingIRQ(RTC_IRQn);
-    NVIC_SetVector(RTC_IRQn, (uint32_t)rct_isr);
-    NVIC_EnableIRQ(RTC_IRQn);
+    vIRQ_ClearPendingIRQ(RTC_IRQn);
+    vIRQ_SetVector(RTC_IRQn, (uint32_t)rct_isr);
+    vIRQ_EnableIRQ(RTC_IRQn);
 
     // configure LPTMR
     CLOCK_SYS_EnableLptimerClock(0);
@@ -71,8 +71,8 @@ void lp_ticker_init(void) {
     LPTMR0_PSR |= LPTMR_PSR_PCS(0x2) | LPTMR_PSR_PBYP_MASK;
     LPTMR_HAL_SetFreeRunningCmd(LPTMR0_BASE, 0);
     IRQn_Type timer_irq[] = LPTMR_IRQS;
-    NVIC_SetVector(timer_irq[0], (uint32_t)lptmr_isr);
-    NVIC_EnableIRQ(timer_irq[0]);
+    vIRQ_SetVector(timer_irq[0], (uint32_t)lptmr_isr);
+    vIRQ_EnableIRQ(timer_irq[0]);
 }
 
 // 4095 seconds is max, closest to uint32t max
