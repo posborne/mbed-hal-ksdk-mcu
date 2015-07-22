@@ -23,6 +23,8 @@
 #if DEVICE_LOWPOWERTIMER
 
 #include "lp_ticker_api.h"
+#include "sleep_api.h"
+#include "objects.h"
 
 /*
 The Low power  timer for KSDK devices uses 2 timers. The reason: LPTMR contains only 16-bit timer.
@@ -45,6 +47,7 @@ otherwise RTC seconds alarm is used, and the leftover is for LPTMR timer.
 
 static void lptmr_isr(void);
 static void rct_isr(void);
+static void lp_ticker_schedule_lptmr(void);
 
 static uint32_t lp_ticker_inited = 0;
 static uint32_t lp_lptmr_schedule = 0;
@@ -64,17 +67,13 @@ static void rct_isr(void)
     RTC_HAL_SetAlarmReg(RTC_BASE, 0);
 }
 
-void lp_ticker_schedule_lptmr(void)
+static void lp_ticker_schedule_lptmr(void)
 {
-    if (lp_lptmr_schedule) {
-        // schedule LPTMR, restart counter and set compare
-        LPTMR_HAL_Disable(LPTMR0_BASE);
-        LPTMR_HAL_SetCompareValue(LPTMR0_BASE, lp_lptmr_schedule);
-        LPTMR_HAL_Enable(LPTMR0_BASE);
-        lp_lptmr_schedule = 0;
-        // Go back to sleep
-        __WFI();
-    }
+    // schedule LPTMR, restart counter and set compare
+    LPTMR_HAL_Disable(LPTMR0_BASE);
+    LPTMR_HAL_SetCompareValue(LPTMR0_BASE, lp_lptmr_schedule);
+    LPTMR_HAL_Enable(LPTMR0_BASE);
+    lp_lptmr_schedule = 0;
 }
 
 void lp_ticker_init(void) {
@@ -172,6 +171,19 @@ void lp_ticker_set_interrupt(uint32_t now, uint32_t time) {
         LPTMR_HAL_Enable(LPTMR0_BASE);
     }
     RTC_HAL_EnableCounter(RTC_BASE, true);
+}
+
+void lp_ticker_sleep_until(uint32_t now, uint32_t time)
+{
+    lp_ticker_set_interrupt(now, time);
+    sleep_t sleep_obj;
+    mbed_enter_sleep(&sleep_obj);
+    if (lp_lptmr_schedule) {
+        // the first wake-up is not final, enter sleep again
+        lp_ticker_schedule_lptmr();
+        __WFI();
+    }
+    mbed_exit_sleep(&sleep_obj);
 }
 
 #endif

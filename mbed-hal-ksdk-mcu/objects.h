@@ -22,6 +22,7 @@
 #include "PinNames.h"
 #include "dma_api.h"
 #include "target_config.h"
+#include "fsl_mcg_hal.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -81,6 +82,10 @@ struct spi_s {
 
 struct dac_s {
     DACName dac;
+};
+
+struct sleep_s {
+    mcg_clock_select_t mcg_clock;
 };
 
 #include "gpio_object.h"

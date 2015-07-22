@@ -17,36 +17,17 @@
 #include "cmsis.h"
 #include "fsl_mcg_hal.h"
 #include "fsl_smc_hal.h"
+#include "objects.h"
 
-extern void lp_ticker_schedule_lptmr(void);
-
-void sleep(void) {
-    smc_power_mode_protection_config_t sleep_config = {
-        .vlpProt = true,            /*!< VLP protect*/
-        .llsProt = true,            /*!< LLS protect */
-        .vllsProt = true,           /*!< VLLS protect*/
-#if FSL_FEATURE_SMC_HAS_HIGH_SPEED_RUN_MODE
-        .hsrunProt = true,          /*!< HSRUN protect */
-#endif
-    };
-    SMC_HAL_SetProtection(SMC_BASE, &sleep_config);
-
-    SCB->SCR &= ~SCB_SCR_SLEEPDEEP_Msk;
-    __WFI();
-
-    // If LPTMR is scheduled, set the timer and go to sleep. This is valid only if lp ticker
-    // was set prior calling sleep function (minar)
-    lp_ticker_schedule_lptmr();
-}
-
-void deepsleep(void) {
+void mbed_enter_sleep(sleep_t *obj)
+{
     /* NOTE: this should me mcg_clock_select_t mcg_clock = CLOCK_HAL_GetClkSrcMode(MCG_BASE);
        However, at least with arm-none-eabi-gcc 4.8.3 20131129, the above call ends up doing a 32 bit access to the MCG
        registers, which results in a hard fault, since the MCG registers only accept 8 bit accesses apparently.
        Newer version of KSDK changed the way they access the MCG, so that should be fixed, but until we update to
        a newer KSDK, the code below should provide a compiler-agnostic fix
     */
-    mcg_clock_select_t mcg_clock = (mcg_clock_select_t)(((*(volatile uint8_t*) HW_MCG_C1_ADDR(MCG_BASE)) & BM_MCG_C1_CLKS) >> BP_MCG_C1_CLKS);
+    obj->mcg_clock = (mcg_clock_select_t)(((*(volatile uint8_t*) HW_MCG_C1_ADDR(MCG_BASE)) & BM_MCG_C1_CLKS) >> BP_MCG_C1_CLKS);
 
     smc_power_mode_protection_config_t sleep_config = {
         .vlpProt = true,            /*!< VLP protect*/
@@ -61,12 +42,14 @@ void deepsleep(void) {
 
     //Deep sleep for ARM core:
     SCB->SCR = 1 << SCB_SCR_SLEEPDEEP_Pos;
-
     __WFI();
+}
 
+void mbed_exit_sleep(sleep_t *obj)
+{
     //Switch back to PLL as clock source if needed
     //The interrupt that woke up the device will run at reduced speed
-    if (mcg_clock == kMcgClkSelOut) {
+    if (obj->mcg_clock == kMcgClkSelOut) {
         if (CLOCK_HAL_GetPllStatMode(MCG_BASE) == kMcgPllStatPllClkSel) {
             while (CLOCK_HAL_GetLock0Mode(MCG_BASE) == kMcgLockUnlocked);
         }
