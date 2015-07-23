@@ -50,9 +50,10 @@ static void rct_isr(void);
 static void lp_ticker_schedule_lptmr(void);
 
 static uint32_t lp_ticker_inited = 0;
-static uint32_t lp_lptmr_schedule = 0;
+static uint32_t lp_lptmr_schedule_ticks = 0;
 // Store compare-match as we use 2 timers, plus LPTMR is relative to 0
 static uint32_t lp_compare_value = 0xFFFFFFFFu;
+static volatile uint8_t lp_ticker_lptmr_scheduled_flag = 0;
 
 static void lptmr_isr(void)
 {
@@ -65,15 +66,19 @@ static void rct_isr(void)
 {
     RTC_HAL_SetAlarmIntCmd(RTC_BASE, false);
     RTC_HAL_SetAlarmReg(RTC_BASE, 0);
+    if (lp_lptmr_schedule_ticks) {
+        lp_ticker_lptmr_scheduled_flag = 1;
+        lp_ticker_schedule_lptmr();
+    }
 }
 
 static void lp_ticker_schedule_lptmr(void)
 {
     // schedule LPTMR, restart counter and set compare
     LPTMR_HAL_Disable(LPTMR0_BASE);
-    LPTMR_HAL_SetCompareValue(LPTMR0_BASE, lp_lptmr_schedule);
+    LPTMR_HAL_SetCompareValue(LPTMR0_BASE, lp_lptmr_schedule_ticks);
     LPTMR_HAL_Enable(LPTMR0_BASE);
-    lp_lptmr_schedule = 0;
+    lp_lptmr_schedule_ticks = 0;
 }
 
 void lp_ticker_init(void) {
@@ -150,7 +155,8 @@ void lp_ticker_set_interrupt(uint32_t now, uint32_t time) {
     // So we need to compensate for the time that already passed
     lp_compare_value = time;
     uint32_t ticks = time > now ? time - now : (uint32_t)((uint64_t)time + 0xFFFFFFFFu - now);
-    lp_lptmr_schedule = 0;
+    lp_lptmr_schedule_ticks = 0;
+    lp_ticker_lptmr_scheduled_flag = 0;
 
     RTC_HAL_EnableCounter(RTC_BASE, false);
     if (ticks > LPTMR_TIMER_MAX_VALUE) {
@@ -163,7 +169,7 @@ void lp_ticker_set_interrupt(uint32_t now, uint32_t time) {
         RTC_HAL_SetAlarmReg(RTC_BASE, seconds);
         RTC_HAL_SetAlarmIntCmd(RTC_BASE, true);
         // the lp timer will be triggered once RTC alarm is set
-        lp_lptmr_schedule = ticks;
+        lp_lptmr_schedule_ticks = ticks;
     } else {
         // restart counter, set compare
         LPTMR_HAL_Disable(LPTMR0_BASE);
@@ -178,9 +184,9 @@ void lp_ticker_sleep_until(uint32_t now, uint32_t time)
     lp_ticker_set_interrupt(now, time);
     sleep_t sleep_obj;
     mbed_enter_sleep(&sleep_obj);
-    if (lp_lptmr_schedule) {
-        // the first wake-up is not final, enter sleep again
-        lp_ticker_schedule_lptmr();
+    // if LPTMR is running and we scheduled it, we know that RTC was fired while
+    // we were sleeping
+    if (LPTMR_HAL_IsEnabled(LPTMR0_BASE) && lp_ticker_lptmr_scheduled_flag) {
         __WFI();
     }
     mbed_exit_sleep(&sleep_obj);
