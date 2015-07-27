@@ -36,7 +36,7 @@ static uint32_t spi_event_check(spi_t *obj);
 static void spi_buffer_tx_write(spi_t *obj);
 static void spi_buffer_rx_read(spi_t *obj);
 static void spi_enable_event_flags(spi_t *obj, uint32_t event, uint8_t enable);
-static void spi_buffer_set(spi_t *obj, void *tx, size_t tx_length, void *rx, size_t rx_length, uint8_t bit_width);
+static void spi_buffer_set(spi_t *obj, void *tx, size_t tx_length, void *rx, size_t rx_length);
 
 #define SPI_TX_FIFO_SIZE (4)
 #define SPI_RX_FIFO_SIZE (4)
@@ -188,14 +188,14 @@ static void spi_master_enable_interrupt(spi_t *obj, uint8_t enable)
     DSPI_HAL_SetRxFifoDrainDmaIntMode(obj->spi.address, kDspiGenerateIntReq, enable);
 }
 
-void spi_master_transfer(spi_t *obj, void *tx, size_t tx_length, void *rx, size_t rx_length, uint8_t bit_width, uint32_t handler, uint32_t event, DMAUsage hint)
+void spi_master_transfer(spi_t *obj, void *tx, size_t tx_length, void *rx, size_t rx_length, uint32_t handler, uint32_t event, DMAUsage hint)
 {
     if (hint != DMA_USAGE_NEVER && obj->spi.dma_state == DMA_USAGE_ALLOCATED) {
         // setup dma done, activate
     } else if (hint == DMA_USAGE_NEVER) {
         obj->spi.dma_state = DMA_USAGE_NEVER;
         spi_enable_event_flags(obj, event, true);
-        spi_buffer_set(obj, tx, tx_length, rx, rx_length, bit_width);
+        spi_buffer_set(obj, tx, tx_length, rx, rx_length);
         // Clear the FIFO
         DSPI_HAL_SetFlushFifoCmd(obj->spi.address,true,true);
         // Enable the FIFO
@@ -255,10 +255,10 @@ static void spi_buffer_tx_write(spi_t *obj)
 
     if ((obj->tx_buff.buffer) && (obj->tx_buff.pos < obj->tx_buff.length)) {
         // Load the data as either an 8-bit value or a 16-bit one
-        if (obj->tx_buff.width == 8) {
+        if (obj->spi.bits <= 8) {
             uint8_t *tx = (uint8_t *)(obj->tx_buff.buffer);
             data = tx[obj->tx_buff.pos];
-        } else if (obj->tx_buff.width == 16) {
+        } else if (obj->spi.bits <= 16) {
             uint16_t *tx = (uint16_t *)(obj->tx_buff.buffer);
             data = tx[obj->tx_buff.pos];
         }
@@ -415,16 +415,16 @@ uint8_t spi_active(spi_t *obj)
     }
 }
 
-static void spi_buffer_set(spi_t *obj, void *tx, size_t tx_length, void *rx, size_t rx_length, uint8_t bit_width)
+static void spi_buffer_set(spi_t *obj, void *tx, size_t tx_length, void *rx, size_t rx_length)
 {
     obj->tx_buff.buffer = tx;
     obj->tx_buff.length = tx_length;
     obj->tx_buff.pos = 0;
-    obj->tx_buff.width = bit_width;
+    obj->tx_buff.width = 0;
     obj->rx_buff.buffer = rx;
     obj->rx_buff.length = rx_length;
     obj->rx_buff.pos = 0;
-    obj->rx_buff.width = bit_width;
+    obj->rx_buff.width = 0;
 }
 
 #endif
