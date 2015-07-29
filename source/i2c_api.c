@@ -25,6 +25,7 @@
 #include "fsl_port_hal.h"
 #include "fsl_sim_hal.h"
 #include "PeripheralPins.h"
+#include "uvisor-lib/uvisor-lib.h"
 
 // Internal states of I2c object used in the IRQ to retreive the state
 #define I2C_MASK_10BIT              4

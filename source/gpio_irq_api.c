@@ -24,6 +24,7 @@
 #include "fsl_gpio_hal.h"
 #include "fsl_port_hal.h"
 #include "mbed_error.h"
+#include "uvisor-lib/uvisor-lib.h"
 
 #define CHANNEL_NUM    160
 

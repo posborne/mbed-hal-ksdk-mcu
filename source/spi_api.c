@@ -27,6 +27,7 @@
 #include "fsl_clock_manager.h"
 #include "fsl_dspi_hal.h"
 #include "PeripheralPins.h"
+#include "uvisor-lib/uvisor-lib.h"
 
 static void spi_enable_vector_interrupt(spi_t *obj, uint32_t handler, uint8_t enable);
 static void spi_master_enable_interrupt(spi_t *obj, uint8_t enable);

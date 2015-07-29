@@ -29,7 +29,8 @@
 #include "fsl_clock_manager.h"
 #include "fsl_uart_features.h"
 #include "PeripheralPins.h"
-
+#include "uvisor-lib/uvisor-lib.h"
+ 
 void uart0_irq(void);
 void uart1_irq(void);
 void uart2_irq(void);

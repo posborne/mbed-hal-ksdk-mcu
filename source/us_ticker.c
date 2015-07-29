@@ -19,6 +19,7 @@
 #include "fsl_pit_hal.h"
 #include "fsl_sim_hal.h"
 #include "fsl_clock_manager.h"
+#include "uvisor-lib/uvisor-lib.h"
 
 static int us_ticker_inited = 0;
 
