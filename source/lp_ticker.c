@@ -25,6 +25,7 @@
 #include "lp_ticker_api.h"
 #include "sleep_api.h"
 #include "objects.h"
+#include "uvisor-lib/uvisor-lib.h"
 
 /*
 The Low power  timer for KSDK devices uses 2 timers. The reason: LPTMR contains only 16-bit timer.
