@@ -19,6 +19,17 @@
 #include "fsl_smc_hal.h"
 #include "objects.h"
 
+//  ______ _______   ____  __ ______   _   _   _
+// |  ____|_   _\ \ / /  \/  |  ____| | | | | | |
+// | |__    | |  \ V /| \  / | |__    | | | | | |
+// |  __|   | |   > < | |\/| |  __|   | | | | | |
+// | |     _| |_ / . \| |  | | |____  |_| |_| |_|
+// |_|    |_____/_/ \_\_|  |_|______| (_) (_) (_)
+//
+// Need to figure out the best sleep mode based on the peripherals
+// that actually need to be clocked rather than just going to the
+// least restrictive sleep mode
+
 void mbed_enter_sleep(sleep_t *obj)
 {
     (void)obj;
