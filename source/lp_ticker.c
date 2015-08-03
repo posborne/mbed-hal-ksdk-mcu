@@ -89,10 +89,10 @@ void lp_ticker_init(void) {
     lp_ticker_inited = 1;
 
     // RTC might be configured already, don't reset it
+    RTC_HAL_SetSupervisorAccessCmd(RTC_BASE, true);
     if (!RTC_HAL_IsCounterEnabled(RTC_BASE)) {
         // select RTC for OSC32KSEL
-        SIM->SOPT1 &= ~SIM_SOPT1_OSC32KSEL_MASK;
-        SIM->SOPT1 |= SIM_SOPT1_OSC32KSEL(2);
+        CLOCK_HAL_SetSource(SIM_BASE, kClockOsc32kSel, 2);
         // configure RTC
         SIM_HAL_EnableRtcClock(SIM_BASE, 0U);
         RTC_HAL_Init(RTC_BASE);
