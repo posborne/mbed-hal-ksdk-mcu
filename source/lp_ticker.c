@@ -88,19 +88,21 @@ void lp_ticker_init(void) {
     }
     lp_ticker_inited = 1;
 
+    // RTC might be configured already, don't reset it
     RTC_HAL_SetSupervisorAccessCmd(RTC_BASE, true);
-    // select RTC for OSC32KSEL
-    CLOCK_HAL_SetSource(SIM_BASE, kClockOsc32kSel, 2);
-    // configure RTC
-    SIM_HAL_EnableRtcClock(SIM_BASE, 0U);
-    RTC_HAL_Init(RTC_BASE);
-    RTC_HAL_Enable(RTC_BASE);
-    for (volatile uint32_t wait_count = 0; wait_count < 1000000; wait_count++);
-    RTC_HAL_SetAlarmIntCmd(RTC_BASE, false);
-    RTC_HAL_SetSecsIntCmd(RTC_BASE, false);
-    RTC_HAL_SetAlarmReg(RTC_BASE, 0);
-    RTC_HAL_EnableCounter(RTC_BASE, true);
-
+    if (!RTC_HAL_IsCounterEnabled(RTC_BASE)) {
+        // select RTC for OSC32KSEL
+        CLOCK_HAL_SetSource(SIM_BASE, kClockOsc32kSel, 2);
+        // configure RTC
+        SIM_HAL_EnableRtcClock(SIM_BASE, 0U);
+        RTC_HAL_Init(RTC_BASE);
+        RTC_HAL_Enable(RTC_BASE);
+        for (volatile uint32_t wait_count = 0; wait_count < 1000000; wait_count++);
+        RTC_HAL_SetAlarmIntCmd(RTC_BASE, false);
+        RTC_HAL_SetSecsIntCmd(RTC_BASE, false);
+        RTC_HAL_SetAlarmReg(RTC_BASE, 0);
+        RTC_HAL_EnableCounter(RTC_BASE, true);
+    }
     vIRQ_ClearPendingIRQ(RTC_IRQn);
     vIRQ_SetVector(RTC_IRQn, (uint32_t)rct_isr);
     vIRQ_EnableIRQ(RTC_IRQn);
