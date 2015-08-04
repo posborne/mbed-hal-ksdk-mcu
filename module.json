@@ -1,6 +1,6 @@
 {
   "name": "mbed-hal-ksdk-mcu",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "mbed HAL for Freescale KSDK MCUs",
   "private": true,
   "keywords": [
