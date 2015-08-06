@@ -47,7 +47,7 @@ static void serial_buffer_tx_write(serial_t *obj);
 static int serial_buffer_rx_read(serial_t *obj);
 static uint32_t serial_rx_error_event_check(serial_t *obj);
 static uint32_t serial_rx_event_check(serial_t *obj);
-static uint32_t serial_tx_event_check(serial_t *obj);
+static uint8_t serial_is_tx_complete(serial_t *obj);
 static void serial_tx_buffer_set(serial_t *obj, void *tx, size_t length, uint8_t width);
 static void serial_rx_buffer_set(serial_t *obj, void *rx, size_t length, uint8_t width);
 static void serial_rx_set_char_match(serial_t *obj, uint8_t char_match);
@@ -280,15 +280,13 @@ static void serial_rx_enable_event(serial_t *obj, int event, uint8_t enable)
     }
 }
 
-static uint32_t serial_tx_event_check(serial_t *obj)
+static uint8_t serial_is_tx_complete(serial_t *obj)
 {
-    uint32_t event = obj->serial.event;
-    uint32_t result = 0;
-    uint8_t in_fifo = UART_HAL_GetTxDatawordCountInFifo(obj->serial.address);
-    if ((event & SERIAL_EVENT_TX_COMPLETE) && (obj->tx_buff.pos == obj->tx_buff.length) && (in_fifo == 0)) {
-        result |= SERIAL_EVENT_TX_COMPLETE;
+    uint8_t complete = 0;
+    if ((obj->tx_buff.pos == obj->tx_buff.length) && (UART_HAL_GetTxDatawordCountInFifo(obj->serial.address) == 0)) {
+        complete = 1;
     }
-    return result;
+    return complete;
 }
 
 static uint32_t serial_rx_error_event_check(serial_t *obj)
@@ -508,8 +506,10 @@ int serial_irq_handler_asynch(serial_t *obj)
     if (UART_HAL_IsTransmitterEnabled(obj->serial.address) && UART_HAL_GetTxDataRegEmptyIntCmd(obj->serial.address) &&
         UART_HAL_IsTxDataRegEmpty(obj->serial.address)) {
         serial_tx_irq_asynch(obj);
-        event |= serial_tx_event_check(obj);
-        if (event & SERIAL_EVENT_TX_MASK) {
+        if (serial_is_tx_complete(obj)) {
+            if (obj->serial.event & SERIAL_EVENT_TX_COMPLETE) {
+                event |= SERIAL_EVENT_TX_COMPLETE;
+            }
             serial_tx_abort_asynch(obj);
         }
     }
