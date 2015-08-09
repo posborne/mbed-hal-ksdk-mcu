@@ -55,16 +55,14 @@ uint8_t spi_get_module(spi_t *obj)
     return obj->spi.instance;
 }
 
-void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel) {
+void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk) {
     // determine the SPI to use
     uint32_t spi_mosi = pinmap_peripheral(mosi, PinMap_SPI_MOSI);
     uint32_t spi_miso = pinmap_peripheral(miso, PinMap_SPI_MISO);
     uint32_t spi_sclk = pinmap_peripheral(sclk, PinMap_SPI_SCLK);
-    uint32_t spi_ssel = pinmap_peripheral(ssel, PinMap_SPI_SSEL);
     uint32_t spi_data = pinmap_merge(spi_mosi, spi_miso);
-    uint32_t spi_cntl = pinmap_merge(spi_sclk, spi_ssel);
 
-    obj->spi.instance = pinmap_merge(spi_data, spi_cntl);
+    obj->spi.instance = pinmap_merge(spi_data, spi_sclk);
     MBED_ASSERT((int)obj->spi.instance != NC);
 
     CLOCK_SYS_EnableSpiClock(obj->spi.instance);
@@ -73,11 +71,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     DSPI_HAL_Init(obj->spi.address);
     DSPI_HAL_Disable(obj->spi.address);
     // set default format and frequency
-    if (ssel == NC) {
-        spi_format(obj, 8, 0, SPI_MSB, 0);  // 8 bits, mode 0, master
-    } else {
-        spi_format(obj, 8, 0, SPI_MSB, 1);  // 8 bits, mode 0, slave
-    }
+    spi_format(obj, 8, 0, SPI_MSB);  // 8 bits, mode 0
     DSPI_HAL_SetDelay(obj->spi.address, kDspiCtar0, 0, 0, kDspiPcsToSck);
     spi_frequency(obj, 1000000);
 
@@ -88,16 +82,13 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     pinmap_pinout(mosi, PinMap_SPI_MOSI);
     pinmap_pinout(miso, PinMap_SPI_MISO);
     pinmap_pinout(sclk, PinMap_SPI_SCLK);
-    if (ssel != NC) {
-        pinmap_pinout(ssel, PinMap_SPI_SSEL);
-    }
 }
 
 void spi_free(spi_t *obj) {
     (void) obj;
     // [TODO]
 }
-void spi_format(spi_t *obj, int bits, int mode, spi_bitorder_t order, int slave) {
+void spi_format(spi_t *obj, int bits, int mode, spi_bitorder_t order) {
     dspi_data_format_config_t config = {0};
     config.bitsPerFrame = (uint32_t)bits;
     obj->spi.bits = bits;
@@ -113,11 +104,7 @@ void spi_format(spi_t *obj, int bits, int mode, spi_bitorder_t order, int slave)
         error("Failed to configure SPI data format");
     }
 
-    if (slave) {
-        DSPI_HAL_SetMasterSlaveMode(obj->spi.address, kDspiSlave);
-    } else {
-        DSPI_HAL_SetMasterSlaveMode(obj->spi.address, kDspiMaster);
-    }
+    DSPI_HAL_SetMasterSlaveMode(obj->spi.address, kDspiMaster);
 }
 
 void spi_frequency(spi_t *obj, int hz) {
@@ -148,20 +135,6 @@ int spi_master_write(spi_t *obj, int value) {
     while (!spi_readable(obj));
     DSPI_HAL_ClearStatusFlag(obj->spi.address, kDspiRxFifoDrainRequest);
     return DSPI_HAL_ReadData(obj->spi.address) & 0xff;
-}
-
-int spi_slave_receive(spi_t *obj) {
-    return spi_readable(obj);
-}
-
-int spi_slave_read(spi_t *obj) {
-    DSPI_HAL_ClearStatusFlag(obj->spi.instance, kDspiRxFifoDrainRequest);
-    return DSPI_HAL_ReadData(obj->spi.address);
-}
-
-void spi_slave_write(spi_t *obj, int value) {
-    while (!spi_writeable(obj));
-    DSPI_HAL_WriteDataSlavemode(obj->spi.address, (uint32_t)value);
 }
 
 static void spi_enable_event_flags(spi_t *obj, uint32_t event, uint8_t enable)
