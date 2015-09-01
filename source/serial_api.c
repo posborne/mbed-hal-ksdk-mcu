@@ -166,26 +166,26 @@ static inline void uart_irq(uint32_t transmit_empty, uint32_t receive_full, uint
 }
 
 void uart0_irq() {
-    uart_irq(UART_HAL_IsTxDataRegEmpty(UART0_BASE), UART_HAL_IsRxDataRegFull(UART0_BASE), 0);
+    uart_irq(UART_HAL_GetTxDataRegEmptyIntCmd(UART0_BASE) && UART_HAL_IsTxDataRegEmpty(UART0_BASE), UART_HAL_GetRxDataRegFullIntCmd(UART0_BASE) && UART_HAL_IsRxDataRegFull(UART0_BASE), 0);
     if (UART_HAL_GetStatusFlag(UART0_BASE, kUartRxOverrun))
         UART_HAL_ClearStatusFlag(UART0_BASE, kUartRxOverrun);
 }
 void uart1_irq() {
-    uart_irq(UART_HAL_IsTxDataRegEmpty(UART1_BASE), UART_HAL_IsRxDataRegFull(UART1_BASE), 1);
+    uart_irq(UART_HAL_GetTxDataRegEmptyIntCmd(UART1_BASE) && UART_HAL_IsTxDataRegEmpty(UART1_BASE), UART_HAL_GetRxDataRegFullIntCmd(UART1_BASE) && UART_HAL_IsRxDataRegFull(UART1_BASE), 1);
 }
 
 void uart2_irq() {
-    uart_irq(UART_HAL_IsTxDataRegEmpty(UART2_BASE), UART_HAL_IsRxDataRegFull(UART2_BASE), 2);
+    uart_irq(UART_HAL_GetTxDataRegEmptyIntCmd(UART2_BASE) && UART_HAL_IsTxDataRegEmpty(UART2_BASE), UART_HAL_GetRxDataRegFullIntCmd(UART2_BASE) && UART_HAL_IsRxDataRegFull(UART2_BASE), 2);
 }
 
 #if (UART_NUM > 3)
 
 void uart3_irq() {
-    uart_irq(UART_HAL_IsTxDataRegEmpty(UART3_BASE), UART_HAL_IsRxDataRegFull(UART3_BASE), 3);
+    uart_irq(UART_HAL_GetTxDataRegEmptyIntCmd(UART3_BASE) && UART_HAL_IsTxDataRegEmpty(UART3_BASE), UART_HAL_GetRxDataRegFullIntCmd(UART3_BASE) && UART_HAL_IsRxDataRegFull(UART3_BASE), 3);
 }
 
 void uart4_irq() {
-    uart_irq(UART_HAL_IsTxDataRegEmpty(UART4_BASE), UART_HAL_IsRxDataRegFull(UART4_BASE), 4);
+    uart_irq(UART_HAL_GetTxDataRegEmptyIntCmd(UART4_BASE) && UART_HAL_IsTxDataRegEmpty(UART4_BASE), UART_HAL_GetRxDataRegFullIntCmd(UART4_BASE) && UART_HAL_IsRxDataRegFull(UART4_BASE), 4);
 }
 #endif
 
