@@ -89,6 +89,7 @@ void spi_free(spi_t *obj) {
     // [TODO]
 }
 void spi_format(spi_t *obj, int bits, int mode, spi_bitorder_t order) {
+    MBED_ASSERT(bits > 3 && bits < 17); // for master max 16
     dspi_data_format_config_t config = {0};
     config.bitsPerFrame = (uint32_t)bits;
     obj->spi.bits = bits;
@@ -167,6 +168,12 @@ void spi_master_transfer(spi_t *obj, void *tx, size_t tx_length, void *rx, size_
     (void)hint;
     MBED_ASSERT(hint == DMA_USAGE_NEVER); // only IRQ supported
     spi_enable_event_flags(obj, event, true);
+
+    // corrections in lengths for 16bit transfers
+    if (obj->spi.bits > 8) {
+        tx_length /= 2;
+        rx_length /= 2;
+    }
     spi_buffer_set(obj, tx, tx_length, rx, rx_length);
     // Clear the FIFO
     DSPI_HAL_SetFlushFifoCmd(obj->spi.address,true,true);
