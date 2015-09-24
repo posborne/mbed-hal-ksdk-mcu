@@ -171,6 +171,7 @@ void spi_master_transfer(spi_t *obj, void *tx, size_t tx_length, void *rx, size_
 
     // corrections in lengths for 16bit transfers
     if (obj->spi.bits > 8) {
+        MBED_ASSERT(((tx_length % 2) == 0) && ((rx_length % 2) == 0)); // alignment check for 16bit transfer
         tx_length /= 2;
         rx_length /= 2;
     }
