@@ -164,24 +164,18 @@ static void spi_master_enable_interrupt(spi_t *obj, uint8_t enable)
 
 void spi_master_transfer(spi_t *obj, void *tx, size_t tx_length, void *rx, size_t rx_length, uint32_t handler, uint32_t event, DMAUsage hint)
 {
-    if (hint != DMA_USAGE_NEVER && obj->spi.dma_state == DMA_USAGE_ALLOCATED) {
-        // setup dma done, activate
-    } else if (hint == DMA_USAGE_NEVER) {
-        obj->spi.dma_state = DMA_USAGE_NEVER;
-        spi_enable_event_flags(obj, event, true);
-        spi_buffer_set(obj, tx, tx_length, rx, rx_length);
-        // Clear the FIFO
-        DSPI_HAL_SetFlushFifoCmd(obj->spi.address,true,true);
-        // Enable the FIFO
-        DSPI_HAL_SetFifoCmd(obj->spi.address, true, true);
-        // Start writing to the SPI peripheral
-        spi_master_write_asynch(obj,SPI_ASYNCH_INITIAL_TX);
-        // use IRQ
-        spi_master_enable_interrupt(obj, true);
-        spi_enable_vector_interrupt(obj, handler, true);
-    } else {
-        // setup and activate
-    }
+    MBED_ASSERT(hint == DMA_USAGE_NEVER); // only IRQ supported
+    spi_enable_event_flags(obj, event, true);
+    spi_buffer_set(obj, tx, tx_length, rx, rx_length);
+    // Clear the FIFO
+    DSPI_HAL_SetFlushFifoCmd(obj->spi.address,true,true);
+    // Enable the FIFO
+    DSPI_HAL_SetFifoCmd(obj->spi.address, true, true);
+    // Start writing to the SPI peripheral
+    spi_master_write_asynch(obj,SPI_ASYNCH_INITIAL_TX);
+    // use IRQ
+    spi_master_enable_interrupt(obj, true);
+    spi_enable_vector_interrupt(obj, handler, true);
 }
 
 static uint32_t spi_event_check(spi_t *obj)
@@ -341,23 +335,19 @@ void spi_abort_asynch(spi_t *obj)
 uint32_t spi_irq_handler_asynch(spi_t *obj)
 {
     uint32_t result = 0;
-    if (obj->spi.dma_state == DMA_USAGE_ALLOCATED || obj->spi.dma_state == DMA_USAGE_TEMPORARY_ALLOCATED) {
-        /* DMA implementation */
-    } else {
-        // Read frames until the RX FIFO is empty
-        uint32_t r = spi_master_read_asynch(obj);
-        // Write at most the same number of frames as were received
-        spi_master_write_asynch(obj, r);
+    // Read frames until the RX FIFO is empty
+    uint32_t r = spi_master_read_asynch(obj);
+    // Write at most the same number of frames as were received
+    spi_master_write_asynch(obj, r);
 
-        // Check for SPI events
-        uint32_t event = spi_event_check(obj);
-        if (event) {
-            result = event;
-            if (event & SPI_EVENT_COMPLETE) {
-                // adjust buffer positions
-                obj->tx_buff.pos = obj->tx_buff.length;
-                obj->rx_buff.pos = obj->rx_buff.length;
-            }
+    // Check for SPI events
+    uint32_t event = spi_event_check(obj);
+    if (event) {
+        result = event;
+        if (event & SPI_EVENT_COMPLETE) {
+            // adjust buffer positions
+            obj->tx_buff.pos = obj->tx_buff.length;
+            obj->rx_buff.pos = obj->rx_buff.length;
         }
     }
 
@@ -370,23 +360,16 @@ uint32_t spi_irq_handler_asynch(spi_t *obj)
 
 uint8_t spi_active(spi_t *obj)
 {
-    switch(obj->spi.dma_state) {
-        case DMA_USAGE_TEMPORARY_ALLOCATED:
-            return 1;
-        case DMA_USAGE_ALLOCATED:
-            /* Check whether the allocated DMA channel is active */
-            return 0;
-        default:
-            /* Check if rx or tx buffers are set and check if any more bytes need to be transferred. */
-            if ((obj->rx_buff.buffer && obj->rx_buff.pos < obj->rx_buff.length)
-                    || (obj->tx_buff.buffer && obj->tx_buff.pos < obj->tx_buff.length) ){
-                return 1;
-            } else  {
-                // interrupts are disabled, all transaction have been completed
-                // TODO: checking rx fifo, it reports data eventhough RFDF is not set
-                return DSPI_HAL_GetIntMode(obj->spi.address, kDspiRxFifoDrainRequest);
-            }
+    /* Check if rx or tx buffers are set and check if any more bytes need to be transferred. */
+    if ((obj->rx_buff.buffer && obj->rx_buff.pos < obj->rx_buff.length)
+            || (obj->tx_buff.buffer && obj->tx_buff.pos < obj->tx_buff.length) ){
+        return 1;
+    } else  {
+        // interrupts are disabled, all transaction have been completed
+        // TODO: checking rx fifo, it reports data eventhough RFDF is not set
+        return DSPI_HAL_GetIntMode(obj->spi.address, kDspiRxFifoDrainRequest);
     }
+
 }
 
 static void spi_buffer_set(spi_t *obj, void *tx, size_t tx_length, void *rx, size_t rx_length)
