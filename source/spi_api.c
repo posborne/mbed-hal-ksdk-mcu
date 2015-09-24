@@ -164,6 +164,7 @@ static void spi_master_enable_interrupt(spi_t *obj, uint8_t enable)
 
 void spi_master_transfer(spi_t *obj, void *tx, size_t tx_length, void *rx, size_t rx_length, uint32_t handler, uint32_t event, DMAUsage hint)
 {
+    (void)hint;
     MBED_ASSERT(hint == DMA_USAGE_NEVER); // only IRQ supported
     spi_enable_event_flags(obj, event, true);
     spi_buffer_set(obj, tx, tx_length, rx, rx_length);
