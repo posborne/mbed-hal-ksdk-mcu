@@ -68,7 +68,7 @@
   "targetDependencies": {
     "k64f": {
       "uvisor-lib": "~0.8.0",
-      "mbed-hal-k64f": "~0.3.0"
+      "mbed-hal-k64f": "~0.4.0"
     }
   }
 }
