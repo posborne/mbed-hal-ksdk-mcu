@@ -402,6 +402,7 @@ static inline void UART_HAL_SetBitCountPerChar(uint32_t baseAddr,
  */
 static inline void UART_HAL_SetParityMode(uint32_t baseAddr, uart_parity_mode_t parityMode)
 {
+    HW_UART_C1_CLR(baseAddr, kUartParityOdd);
     HW_UART_C1_SET(baseAddr, parityMode);
 }
 
