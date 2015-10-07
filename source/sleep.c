@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "uvisor-lib/uvisor-lib.h"
 #include "sleep_api.h"
 #include "cmsis.h"
 #include "fsl_mcg_hal.h"
@@ -44,7 +45,8 @@ void mbed_enter_sleep(sleep_t *obj)
     SMC_HAL_SetProtection(SMC_BASE, &sleep_config);
 
     //Regular sleep for ARM core:
-    SCB->SCR &= ~SCB_SCR_SLEEPDEEP_Msk;
+    /* FIXME this will be replaced by a uVisor register-level gateway API */
+    uvisor_write32(&SCB->SCR, uvisor_read32(&(SCB->SCR)) & ~SCB_SCR_SLEEPDEEP_Msk);
     __WFI();
 }
 
