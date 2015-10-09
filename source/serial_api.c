@@ -340,7 +340,7 @@ static uint32_t serial_rx_event_check(serial_t *obj)
 static void serial_buffer_tx_write(serial_t *obj)
 {
     uint16_t data;
-    if (obj->tx_buff.width == 8) {
+    if (obj->serial.databits == 8) {
         uint8_t *tx = (uint8_t *)(obj->tx_buff.buffer);
         data = tx[obj->tx_buff.pos];
     } else {
@@ -366,7 +366,7 @@ static int serial_buffer_rx_read(serial_t *obj)
     }
 
     int character;
-    if (obj->rx_buff.width == 8) {
+    if (obj->serial.databits == 8) {
         uint8_t *rx = (uint8_t *)(obj->rx_buff.buffer);
         rx[obj->rx_buff.pos] = data;
         character = data;
