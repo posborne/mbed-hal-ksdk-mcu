@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "mbed_assert.h"
+#include "mbed-drivers/mbed_assert.h"
 #include "analogin_api.h"
 
 #if DEVICE_ANALOGIN

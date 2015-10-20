@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "mbed_assert.h"
-#include "i2c_api.h"
+#include "mbed-drivers/mbed_assert.h"
+#include "mbed-hal/i2c_api.h"
 
 #if DEVICE_I2C
 
 #include "cmsis.h"
-#include "pinmap.h"
+#include "mbed-hal/pinmap.h"
 #include "fsl_clock_manager.h"
 #include "fsl_i2c_hal.h"
 #include "fsl_port_hal.h"

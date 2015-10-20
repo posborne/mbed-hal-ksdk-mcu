@@ -19,7 +19,7 @@
 
 // math.h required for floating point operations for baud rate calculation
 #include <math.h>
-#include "mbed_assert.h"
+#include "mbed-drivers/mbed_assert.h"
 
 #include <string.h>
 

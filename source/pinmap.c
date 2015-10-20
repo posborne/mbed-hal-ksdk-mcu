@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "mbed_assert.h"
-#include "pinmap.h"
-#include "mbed_error.h"
+#include "mbed-drivers/mbed_assert.h"
+#include "mbed-hal/pinmap.h"
+#include "mbed-drivers/mbed_error.h"
 #include "fsl_clock_manager.h"
 #include "fsl_port_hal.h"
 

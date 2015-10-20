@@ -16,7 +16,7 @@
 #ifndef MBED_GPIO_OBJECT_H
 #define MBED_GPIO_OBJECT_H
 
-#include "mbed_assert.h"
+#include "mbed-drivers/mbed_assert.h"
 #include "fsl_gpio_hal.h"
 // #include "cmsis.h"
 
