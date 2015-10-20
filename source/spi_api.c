@@ -15,15 +15,15 @@
  */
 #include <math.h>
 #include <stdio.h>
-#include "mbed_assert.h"
+#include "mbed-drivers/mbed_assert.h"
 
-#include "spi_api.h"
+#include "mbed-hal/spi_api.h"
 
 #if DEVICE_SPI
 
 #include "cmsis.h"
-#include "pinmap.h"
-#include "mbed_error.h"
+#include "mbed-hal/pinmap.h"
+#include "mbed-drivers/mbed_error.h"
 #include "fsl_clock_manager.h"
 #include "fsl_dspi_hal.h"
 #include "PeripheralPins.h"

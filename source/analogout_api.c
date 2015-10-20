@@ -18,8 +18,8 @@
 #if DEVICE_ANALOGOUT
 
 #include "cmsis.h"
-#include "pinmap.h"
-#include "mbed_error.h"
+#include "mbed-hal/pinmap.h"
+#include "mbed-drivers/mbed_error.h"
 #include "PeripheralPins.h"
 #include "fsl_clock_manager.h"
 

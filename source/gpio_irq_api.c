@@ -20,10 +20,10 @@
 
 #if DEVICE_INTERRUPTIN
 
-#include "gpio_api.h"
+#include "mbed-hal/gpio_api.h"
 #include "fsl_gpio_hal.h"
 #include "fsl_port_hal.h"
-#include "mbed_error.h"
+#include "mbed-drivers/mbed_error.h"
 #include "uvisor-lib/uvisor-lib.h"
 
 #define CHANNEL_NUM    160
