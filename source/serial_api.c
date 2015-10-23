@@ -107,18 +107,20 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     uint8_t fifo_size = UART_HAL_GetTxFifoSize(obj->serial.address);
     obj->serial.entry_count = (fifo_size == 0 ? 1 : 0x1 << (fifo_size + 1));
     UART_HAL_ClearAllNonAutoclearStatusFlags(obj->serial.address);
-    // Fifo Rx/Tx enabled by default. TX can be enabled/disable only if RE is disabled also
+    // Flashing fifo must be done with a disabled module, thus enabling TX happens after RX is enabled
     if (tx != NC) {
         pin_mode(tx, PullUp);
         UART_HAL_SetTxFifoCmd(obj->serial.address, true);
         UART_HAL_FlushTxFifo(obj->serial.address);
-        UART_HAL_EnableTransmitter(obj->serial.address);
     }
     if (rx != NC) {
         pin_mode(rx, PullUp);
         UART_HAL_SetRxFifoCmd(obj->serial.address, true);
         UART_HAL_FlushRxFifo(obj->serial.address);
         UART_HAL_EnableReceiver(obj->serial.address);
+    }
+    if (tx != NC) {
+        UART_HAL_EnableTransmitter(obj->serial.address);
     }
     obj->char_match = SERIAL_RESERVED_CHAR_MATCH;
 
