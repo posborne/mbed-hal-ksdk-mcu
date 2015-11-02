@@ -16,7 +16,7 @@
  */
 
 #include "fsl_os_abstraction.h"
-#include "wait_api.h"
+#include "mbed-drivers/wait_api.h"
 
 fsl_rtos_status lock_destroy(lock_object_t *obj) {
     (void) (obj);
