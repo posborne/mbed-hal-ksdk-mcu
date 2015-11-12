@@ -112,6 +112,7 @@ void spi_frequency(spi_t *obj, int hz) {
     uint32_t busClock;
     CLOCK_SYS_GetFreq(kBusClock, &busClock);
     DSPI_HAL_SetBaudRate(obj->spi.address, kDspiCtar0, (uint32_t)hz, busClock);
+    DSPI_HAL_CalculateDelay(obj->spi.address, kDspiCtar0, kDspiAfterTransfer, busClock, 1000000000/(2*hz));
 }
 
 static inline int spi_writeable(spi_t * obj) {
