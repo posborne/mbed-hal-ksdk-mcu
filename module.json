@@ -70,6 +70,9 @@
   "targetDependencies": {
     "k64f": {
       "mbed-hal-k64f": "^1.0.0"
+    },
+    "k22f": {
+      "mbed-hal-k22f": "^1.0.0"
     }
   }
 }
